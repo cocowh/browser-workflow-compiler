@@ -1,0 +1,22 @@
+:root {
+  --color-text: #18201d;
+  --color-muted: #64706a;
+  --color-page: #f6f7f4;
+  --color-surface: #fbfcf8;
+  --color-panel: #ffffff;
+  --color-border: #dfe4dd;
+  --color-accent: #5fb984;
+  --color-accent-soft: #8ee4b0;
+  --color-accent-tint: #dff6e8;
+  --color-warning-tint: #ffe2a8;
+  --color-warning-text: #53350e;
+  --radius-control: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 10px;
+  --space-4: 12px;
+  --space-5: 14px;
+  --space-6: 16px;
+  --space-7: 18px;
+  --space-8: 22px;
+}

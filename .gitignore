@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.turbo/
+.idea/
+coverage/
+playwright-report/
+test-results/
+**/.bwc/
+.env
+.env.*
+.DS_Store

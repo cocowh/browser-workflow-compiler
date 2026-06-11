@@ -1,0 +1,28 @@
+{
+  "name": "browser-workflow-compiler",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.5.3",
+  "engines": {
+    "node": ">=24 <27",
+    "pnpm": "11.5.3"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "check": "pnpm format && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "dev": "turbo run dev --parallel",
+    "dev:api": "pnpm --filter @bwc/backend-api dev",
+    "dev:web": "pnpm --filter @bwc/web-console dev",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "smoke:browser": "pnpm --filter @bwc/browser-worker smoke",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.16",
+    "turbo": "^2.9.18",
+    "typescript": "^6.0.3"
+  }
+}

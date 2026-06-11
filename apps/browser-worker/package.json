@@ -1,0 +1,23 @@
+{
+  "name": "@bwc/browser-worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "install:browsers": "playwright install chromium",
+    "smoke": "tsx src/smoke.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bwc/api-client": "workspace:*",
+    "@bwc/observation-ir": "workspace:*",
+    "@bwc/shared": "workspace:*",
+    "playwright": "^1.60.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.1",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}

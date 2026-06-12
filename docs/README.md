@@ -20,6 +20,7 @@ This directory is the canonical project documentation source for Browser Workflo
 - [Step 00 - Project Bootstrap](./internal/plans/2026-06-12-step-00-project-bootstrap.md)
 - [Step 01 - Observation IR Ingestion](./internal/plans/2026-06-12-step-01-observation-ir.md)
 - [Step 02 - Browser Event Capture](./internal/plans/2026-06-12-step-02-browser-event-capture.md)
+- [Step 03 - Network Request Capture](./internal/plans/2026-06-12-step-03-network-request-capture.md)
 - [Local Runtime Baseline](./internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](./internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [ADR 0001 - Product Positioning and P0 Scope](./internal/adr/0001-product-positioning-and-p0.md)

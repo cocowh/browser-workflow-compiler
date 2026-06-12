@@ -59,9 +59,10 @@ Path: `apps/browser-worker`
 Current role:
 
 - Playwright runtime placeholder.
-- Provides a smoke command that launches Chromium.
-- Produces a sample `browser.session_started` Observation IR event.
-- Can post the smoke event to Backend API when run with `--api` or `BWC_API_URL`.
+- Provides a recorder-backed smoke command that launches Chromium.
+- Captures `browser.session_started`, `browser.navigate`, and `browser.session_stopped`.
+- Preserves monotonic event sequence values with `EventSequencer`.
+- Can post captured browser lifecycle events to Backend API when run with `--api` or `BWC_API_URL`.
 
 ## Packages
 

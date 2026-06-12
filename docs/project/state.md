@@ -6,7 +6,7 @@ Phase 1 - Local Runtime Foundation
 
 ## Current Step
 
-[Step 02 - Browser Event Capture](../internal/plans/2026-06-12-step-02-browser-event-capture.md)
+[Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md)
 
 ## Last Completed
 
@@ -17,14 +17,16 @@ Phase 1 - Local Runtime Foundation
 - Added `@bwc/api-client`.
 - Updated Browser Worker smoke so it can post one event to Backend API.
 - Split Web Console into initial reusable components and style token files.
+- Completed [Step 02 - Browser Event Capture](../internal/plans/2026-06-12-step-02-browser-event-capture.md).
+- Added Browser Worker lifecycle recorder for `browser.session_started`, `browser.navigate`, and `browser.session_stopped`.
 
 ## Next Action
 
-1. Start [Step 02 - Browser Event Capture](../internal/plans/2026-06-12-step-02-browser-event-capture.md).
-2. Add Browser Worker recorder module and monotonic sequence helper.
-3. Capture `browser.session_started`, `browser.navigate`, and `browser.session_stopped`.
-4. Post captured events through `@bwc/api-client`.
-5. Update module and testing docs after Step 02 is implemented.
+1. Start [Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md).
+2. Capture fetch/XHR request and response events.
+3. Add request IDs, method, URL, status, tags, and timing details.
+4. Add body/header artifact reference conventions.
+5. Update module and testing docs after Step 03 is implemented.
 
 ## Project Summary
 
@@ -46,11 +48,13 @@ The product records what a user actually does in a browser, captures the network
 - [Step 00 - Project Bootstrap](../internal/plans/2026-06-12-step-00-project-bootstrap.md)
 - [Step 01 - Observation IR Ingestion](../internal/plans/2026-06-12-step-01-observation-ir.md)
 - [Step 02 - Browser Event Capture](../internal/plans/2026-06-12-step-02-browser-event-capture.md)
+- [Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [Local Runtime Modules](../internal/modules/local-runtime.md)
 - [Step 00 Verification](../internal/testing/2026-06-12-step-00-verification.md)
 - [Step 01 Verification](../internal/testing/2026-06-12-step-01-verification.md)
+- [Step 02 Verification](../internal/testing/2026-06-12-step-02-verification.md)
 - [ADR 0001 - Product Positioning and P0 Scope](../internal/adr/0001-product-positioning-and-p0.md)
 
 ## Active Decisions
@@ -61,6 +65,7 @@ The product records what a user actually does in a browser, captures the network
 - Project runtime target is Node 24 LTS.
 - Backend API uses Fastify for the first local service boundary.
 - Browser Worker should use TypeScript Playwright as the primary runtime.
+- Browser Worker lifecycle recording should capture factual browser events before network capture and analysis.
 - Web Console uses React and Vite for the first local workbench.
 - Shared schemas use TypeBox / JSON Schema compatible definitions.
 - P0 local persistence should use SQLite for indexes and filesystem artifacts for large payloads.
@@ -96,6 +101,11 @@ Please read docs/project/state.md and docs/project/index.md first, then restore 
 
 ### 2026-06-12
 
+- Completed Step 02 browser event capture.
+- Added Browser Worker recorder module, event sequencer, and CLI options for API URL and target URL.
+- Browser Worker smoke now records `browser.session_started`, `browser.navigate`, and `browser.session_stopped`.
+- Added Browser Worker unit tests and Step 02 verification notes.
+- Added Step 03 network request capture plan.
 - Completed Step 01 Observation IR ingestion.
 - Added Backend API session and Observation IR event routes.
 - Added SQLite local storage under `.bwc/bwc.sqlite` and `.bwc/artifacts/`.

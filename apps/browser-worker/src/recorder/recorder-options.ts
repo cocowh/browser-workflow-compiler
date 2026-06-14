@@ -1,4 +1,23 @@
-export const defaultSmokeUrl = "data:text/html,<main><button id='record'>Record</button></main>";
+export const defaultSmokeUrl =
+  "data:text/html," +
+  encodeURIComponent(`
+    <main>
+      <button id="record">Record</button>
+      <output id="network-result"></output>
+      <script>
+        fetch("https://bwc.local/api/smoke", { headers: { accept: "application/json" } })
+          .then((response) => response.json())
+          .then((data) => {
+            document.querySelector("#network-result").textContent = data.ok ? "ok" : "failed";
+            document.body.dataset.bwcSmokeNetwork = "done";
+          })
+          .catch(() => {
+            document.querySelector("#network-result").textContent = "failed";
+            document.body.dataset.bwcSmokeNetwork = "done";
+          });
+      </script>
+    </main>
+  `);
 
 export type BrowserRecorderOptions = {
   apiUrl: string | undefined;

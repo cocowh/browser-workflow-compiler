@@ -16,3 +16,4 @@ YYYY-MM-DD-step-00-project-bootstrap.md
 - [Step 01 - Observation IR Ingestion](./2026-06-12-step-01-observation-ir.md)
 - [Step 02 - Browser Event Capture](./2026-06-12-step-02-browser-event-capture.md)
 - [Step 03 - Network Request Capture](./2026-06-12-step-03-network-request-capture.md)
+- [Step 04 - User Action Capture](./2026-06-13-step-04-user-action-capture.md)

@@ -61,8 +61,11 @@ Current role:
 - Playwright runtime placeholder.
 - Provides a recorder-backed smoke command that launches Chromium.
 - Captures `browser.session_started`, `browser.navigate`, and `browser.session_stopped`.
+- Captures fetch/XHR `network.request` and `network.response` events.
+- Filters obvious static assets from network observations.
+- Adds request IDs, timing, JSON/GraphQL/sensitive tags, and header/body artifact reference conventions.
 - Preserves monotonic event sequence values with `EventSequencer`.
-- Can post captured browser lifecycle events to Backend API when run with `--api` or `BWC_API_URL`.
+- Can post captured browser and network events to Backend API when run with `--api` or `BWC_API_URL`.
 
 ## Packages
 

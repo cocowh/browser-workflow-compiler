@@ -20,3 +20,4 @@ Example:
 
 - [Local Runtime Baseline](./2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](./2026-06-12-observation-ir-ingestion.md)
+- [Network Request Capture](./2026-06-13-network-request-capture.md)

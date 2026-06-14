@@ -2,7 +2,9 @@ import { createBwcApiClient } from "@bwc/api-client";
 import type { ObservationEvent } from "@bwc/observation-ir";
 import { createId, nowIso, type RecordingSession } from "@bwc/shared";
 import { chromium, type Page } from "playwright";
+import { makeEvent } from "./event-factory.js";
 import { EventSequencer } from "./event-sequencer.js";
+import { attachNetworkCapture } from "./network-capture.js";
 import type { BrowserRecorderOptions } from "./recorder-options.js";
 
 export type BrowserRecorderResult = {
@@ -27,6 +29,13 @@ export async function recordBrowserLifecycle(options: BrowserRecorderOptions): P
 
   try {
     const page = await browser.newPage();
+    await setupSmokeNetworkRoute(page);
+    const stopNetworkCapture = attachNetworkCapture({
+      sessionId: session.id,
+      page,
+      events,
+      sequencer,
+    });
 
     events.push(
       makeEvent({
@@ -41,6 +50,8 @@ export async function recordBrowserLifecycle(options: BrowserRecorderOptions): P
     );
 
     await page.goto(options.targetUrl);
+    await waitForSmokeNetwork(page);
+    await stopNetworkCapture();
     const finalUrl = page.url();
 
     events.push(
@@ -89,36 +100,7 @@ export async function recordBrowserLifecycle(options: BrowserRecorderOptions): P
     await browser.close();
   }
 }
-
-export function makeEvent(input: {
-  sessionId: string;
-  type: ObservationEvent["type"];
-  sequence: number;
-  pageUrl: string;
-  payload: Record<string, unknown>;
-  actor?: ObservationEvent["actor"];
-  frameId?: string;
-  tags?: string[];
-}): ObservationEvent {
-  const event: ObservationEvent = {
-    id: createId("evt"),
-    sessionId: input.sessionId,
-    type: input.type,
-    timestamp: Date.now(),
-    sequence: input.sequence,
-    pageUrl: input.pageUrl,
-    actor: input.actor ?? "worker",
-    payload: input.payload,
-    artifactRefs: [],
-    tags: input.tags ?? [],
-  };
-
-  if (input.frameId !== undefined) {
-    event.frameId = input.frameId;
-  }
-
-  return event;
-}
+export { makeEvent } from "./event-factory.js";
 
 async function createSession(options: BrowserRecorderOptions): Promise<RecordingSession> {
   if (options.apiUrl !== undefined) {
@@ -171,4 +153,30 @@ async function readOptionalButtonText(page: Page): Promise<string | undefined> {
     return undefined;
   }
   return button.innerText();
+}
+
+async function waitForSmokeNetwork(page: Page): Promise<void> {
+  const marker = page.locator("[data-bwc-smoke-network='done']").first();
+  try {
+    await marker.waitFor({ state: "attached", timeout: 2_000 });
+  } catch {
+    await page.waitForLoadState("networkidle", { timeout: 2_000 }).catch(() => undefined);
+  }
+}
+
+async function setupSmokeNetworkRoute(page: Page): Promise<void> {
+  await page.route("https://bwc.local/api/smoke", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: {
+        "access-control-allow-origin": "*",
+        "cache-control": "no-store",
+      },
+      body: JSON.stringify({
+        ok: true,
+        source: "browser-worker-smoke",
+      }),
+    });
+  });
 }

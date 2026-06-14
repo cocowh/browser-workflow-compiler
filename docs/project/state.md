@@ -6,7 +6,7 @@ Phase 1 - Local Runtime Foundation
 
 ## Current Step
 
-[Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md)
+[Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md)
 
 ## Last Completed
 
@@ -19,14 +19,16 @@ Phase 1 - Local Runtime Foundation
 - Split Web Console into initial reusable components and style token files.
 - Completed [Step 02 - Browser Event Capture](../internal/plans/2026-06-12-step-02-browser-event-capture.md).
 - Added Browser Worker lifecycle recorder for `browser.session_started`, `browser.navigate`, and `browser.session_stopped`.
+- Completed [Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md).
+- Added Browser Worker fetch/XHR network capture for `network.request` and `network.response`.
 
 ## Next Action
 
-1. Start [Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md).
-2. Capture fetch/XHR request and response events.
-3. Add request IDs, method, URL, status, tags, and timing details.
-4. Add body/header artifact reference conventions.
-5. Update module and testing docs after Step 03 is implemented.
+1. Start [Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md).
+2. Capture basic click and input events.
+3. Preserve target hints, page URL, visible text/value metadata, and monotonic sequence values.
+4. Verify browser action and network events can be stored in one session.
+5. Keep action-request linking out until action capture is stable.
 
 ## Project Summary
 
@@ -49,12 +51,15 @@ The product records what a user actually does in a browser, captures the network
 - [Step 01 - Observation IR Ingestion](../internal/plans/2026-06-12-step-01-observation-ir.md)
 - [Step 02 - Browser Event Capture](../internal/plans/2026-06-12-step-02-browser-event-capture.md)
 - [Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md)
+- [Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
+- [Network Request Capture](../internal/specs/2026-06-13-network-request-capture.md)
 - [Local Runtime Modules](../internal/modules/local-runtime.md)
 - [Step 00 Verification](../internal/testing/2026-06-12-step-00-verification.md)
 - [Step 01 Verification](../internal/testing/2026-06-12-step-01-verification.md)
 - [Step 02 Verification](../internal/testing/2026-06-12-step-02-verification.md)
+- [Step 03 Verification](../internal/testing/2026-06-13-step-03-verification.md)
 - [ADR 0001 - Product Positioning and P0 Scope](../internal/adr/0001-product-positioning-and-p0.md)
 
 ## Active Decisions
@@ -66,6 +71,7 @@ The product records what a user actually does in a browser, captures the network
 - Backend API uses Fastify for the first local service boundary.
 - Browser Worker should use TypeScript Playwright as the primary runtime.
 - Browser Worker lifecycle recording should capture factual browser events before network capture and analysis.
+- Browser Worker network capture should record fetch/XHR facts before action-request linking.
 - Web Console uses React and Vite for the first local workbench.
 - Shared schemas use TypeBox / JSON Schema compatible definitions.
 - P0 local persistence should use SQLite for indexes and filesystem artifacts for large payloads.
@@ -98,6 +104,14 @@ Please read docs/project/state.md and docs/project/index.md first, then restore 
 ```
 
 ## Progress Log
+
+### 2026-06-13
+
+- Completed Step 03 network request capture.
+- Added Browser Worker Playwright network capture for fetch/XHR request and response events.
+- Added request IDs, method, URL, response status, timing, JSON/GraphQL/sensitive tags, and artifact reference conventions.
+- Added a local smoke page that performs one JSON fetch through a Playwright-fulfilled route.
+- Added Network Request Capture spec, Step 03 verification notes, and Step 04 user action capture plan.
 
 ### 2026-06-12
 

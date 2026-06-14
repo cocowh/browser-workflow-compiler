@@ -146,6 +146,16 @@ importers:
         specifier: ^0.34.49
         version: 0.34.49
 
+  packages/replay:
+    dependencies:
+      '@bwc/workflow-ir':
+        specifier: workspace:*
+        version: link:../workflow-ir
+    devDependencies:
+      vitest:
+        specifier: ^4.1.8
+        version: 4.1.8(@types/node@24.13.1)(vite@8.0.16(@types/node@24.13.1)(esbuild@0.28.0)(tsx@4.22.4))
+
   packages/shared:
     dependencies:
       '@sinclair/typebox':

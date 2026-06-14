@@ -124,7 +124,8 @@ The first implemented Workflow IR generator is intentionally minimal:
 - It creates one `http.request` step per selected `network.request` observation.
 - It preserves the observed HTTP method and URL.
 - It preserves Evidence Graph triggered edge IDs as `evidence://...` refs.
-- It leaves inputs, variables, extraction, assertions, replay, and export behavior for later steps.
+- It can be executed by the API-level replay seed.
+- It leaves inputs, variables, extraction, rich assertions, and export behavior for later steps.
 
 ## Non-goals For P0
 

@@ -6,7 +6,7 @@ Phase 1 - Local Runtime Foundation
 
 ## Current Step
 
-[Step 08 - API-Level Replay Seed](../internal/plans/2026-06-14-step-08-api-level-replay-seed.md)
+[Step 09 - Replay Result Evidence](../internal/plans/2026-06-14-step-09-replay-result-evidence.md)
 
 ## Last Completed
 
@@ -29,13 +29,15 @@ Phase 1 - Local Runtime Foundation
 - Added `@bwc/analysis` Evidence Graph seed generation for action, request, response, and triggered edge facts.
 - Completed [Step 07 - Minimal Workflow IR Generation](../internal/plans/2026-06-14-step-07-minimal-workflow-ir-generation.md).
 - Added `@bwc/analysis` minimal Workflow IR generation from network request observations and Evidence Graph refs.
+- Completed [Step 08 - API-Level Replay Seed](../internal/plans/2026-06-14-step-08-api-level-replay-seed.md).
+- Added `@bwc/replay` local API-level Workflow IR replay with deterministic HTTP client and clock injection.
 
 ## Next Action
 
-1. Start [Step 08 - API-Level Replay Seed](../internal/plans/2026-06-14-step-08-api-level-replay-seed.md).
-2. Execute minimal Workflow IR `http.request` steps locally.
-3. Preserve replay result status, timing, error facts, workflow step IDs, and evidence refs.
-4. Keep browser-level replay and advanced variables out until the API-level replay seed is stable.
+1. Start [Step 09 - Replay Result Evidence](../internal/plans/2026-06-14-step-09-replay-result-evidence.md).
+2. Convert API-level replay facts into Evidence Graph `replay_result` nodes.
+3. Add `verified_by` edges from workflow step evidence to replay result evidence.
+4. Keep UI rendering and persistence out until replay result evidence is deterministic.
 
 ## Project Summary
 
@@ -63,15 +65,18 @@ The product records what a user actually does in a browser, captures the network
 - [Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md)
 - [Step 07 - Minimal Workflow IR Generation](../internal/plans/2026-06-14-step-07-minimal-workflow-ir-generation.md)
 - [Step 08 - API-Level Replay Seed](../internal/plans/2026-06-14-step-08-api-level-replay-seed.md)
+- [Step 09 - Replay Result Evidence](../internal/plans/2026-06-14-step-09-replay-result-evidence.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [Action Request Linking](../internal/specs/2026-06-14-action-request-linking.md)
+- [API-Level Replay Seed](../internal/specs/2026-06-14-api-level-replay-seed.md)
 - [Evidence Graph Seed](../internal/specs/2026-06-14-evidence-graph-seed.md)
 - [Minimal Workflow IR Generation](../internal/specs/2026-06-14-minimal-workflow-ir-generation.md)
 - [Network Request Capture](../internal/specs/2026-06-13-network-request-capture.md)
 - [User Action Capture](../internal/specs/2026-06-14-user-action-capture.md)
 - [Local Runtime Modules](../internal/modules/local-runtime.md)
 - [Analysis Module](../internal/modules/analysis.md)
+- [Replay Module](../internal/modules/replay.md)
 - [Step 00 Verification](../internal/testing/2026-06-12-step-00-verification.md)
 - [Step 01 Verification](../internal/testing/2026-06-12-step-01-verification.md)
 - [Step 02 Verification](../internal/testing/2026-06-12-step-02-verification.md)
@@ -80,6 +85,7 @@ The product records what a user actually does in a browser, captures the network
 - [Step 05 Verification](../internal/testing/2026-06-14-step-05-verification.md)
 - [Step 06 Verification](../internal/testing/2026-06-14-step-06-verification.md)
 - [Step 07 Verification](../internal/testing/2026-06-14-step-07-verification.md)
+- [Step 08 Verification](../internal/testing/2026-06-14-step-08-verification.md)
 - [ADR 0001 - Product Positioning and P0 Scope](../internal/adr/0001-product-positioning-and-p0.md)
 
 ## Active Decisions
@@ -96,6 +102,7 @@ The product records what a user actually does in a browser, captures the network
 - Action-request linking should stay deterministic and outside Browser Worker.
 - Evidence Graph seed generation should stay deterministic and outside Browser Worker.
 - Minimal Workflow IR generation should stay deterministic and outside Browser Worker.
+- API-level replay should stay separate from deterministic analysis and should support injected HTTP clients for tests.
 - Web Console uses React and Vite for the first local workbench.
 - Shared schemas use TypeBox / JSON Schema compatible definitions.
 - P0 local persistence should use SQLite for indexes and filesystem artifacts for large payloads.
@@ -131,6 +138,11 @@ Please read docs/project/state.md and docs/project/index.md first, then restore 
 
 ### 2026-06-14
 
+- Completed Step 08 API-Level Replay Seed.
+- Added `@bwc/replay` with `replayWorkflow`.
+- Added local execution for minimal Workflow IR `http.request` steps.
+- Added replay result facts for workflow ID, step ID, status, timing, response status, error facts, and evidence refs.
+- Added API-Level Replay Seed spec, Replay module notes, Step 08 verification notes, and Step 09 Replay Result Evidence plan.
 - Completed Step 07 Minimal Workflow IR Generation.
 - Added `generateMinimalWorkflow` to `@bwc/analysis`.
 - Added deterministic `http.request` step generation from `network.request` observations.

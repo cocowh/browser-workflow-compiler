@@ -12,3 +12,4 @@ Create module docs as implementation begins, for example:
 
 - [Analysis Module](./analysis.md)
 - [Local Runtime Modules](./local-runtime.md)
+- [Replay Module](./replay.md)

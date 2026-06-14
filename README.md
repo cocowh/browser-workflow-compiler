@@ -13,7 +13,7 @@ Browser Workflow Compiler turns real browser operations into explainable, editab
 
 ## Development Status
 
-The project has completed the initial Step 00 bootstrap and now contains a minimal local runtime skeleton.
+The project has completed the local recording, analysis, minimal Workflow IR generation, and API-level replay seed. See [Project State](docs/project/state.md) for the current step.
 
 ## Local Development
 

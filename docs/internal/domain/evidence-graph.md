@@ -174,6 +174,8 @@ The first implemented seed graph is intentionally smaller than the full model:
 
 The seed preserves source Observation IR event IDs and action-request link metadata so later Workflow IR generation can cite the graph without treating it as a new source of truth.
 
+Replay result nodes and `verified_by` edges are planned for Step 09. Step 08 produces replay facts but does not mutate the Evidence Graph yet.
+
 ## Human Review
 
 The user should eventually be able to:

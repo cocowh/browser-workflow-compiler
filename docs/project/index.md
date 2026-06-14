@@ -7,7 +7,7 @@ Turn real browser operations into explainable, editable, replayable, and exporta
 ## Current Project State
 
 - Current phase: [Project State](./state.md)
-- Current implementation step: [Step 10 - Backend Analysis API Seed](../internal/plans/2026-06-14-step-10-backend-analysis-api-seed.md)
+- Current implementation step: [Step 11 - API Client Analysis Method](../internal/plans/2026-06-14-step-11-api-client-analysis-method.md)
 - Current product scope: [P0 Scope](../internal/product/p0-scope.md)
 
 ## Foundation Documents
@@ -32,10 +32,12 @@ Turn real browser operations into explainable, editable, replayable, and exporta
 - [Step 08 - API-Level Replay Seed](../internal/plans/2026-06-14-step-08-api-level-replay-seed.md)
 - [Step 09 - Replay Result Evidence](../internal/plans/2026-06-14-step-09-replay-result-evidence.md)
 - [Step 10 - Backend Analysis API Seed](../internal/plans/2026-06-14-step-10-backend-analysis-api-seed.md)
+- [Step 11 - API Client Analysis Method](../internal/plans/2026-06-14-step-11-api-client-analysis-method.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [Action Request Linking](../internal/specs/2026-06-14-action-request-linking.md)
 - [API-Level Replay Seed](../internal/specs/2026-06-14-api-level-replay-seed.md)
+- [Backend Analysis API Seed](../internal/specs/2026-06-14-backend-analysis-api-seed.md)
 - [Evidence Graph Seed](../internal/specs/2026-06-14-evidence-graph-seed.md)
 - [Minimal Workflow IR Generation](../internal/specs/2026-06-14-minimal-workflow-ir-generation.md)
 - [Network Request Capture](../internal/specs/2026-06-13-network-request-capture.md)

@@ -1,5 +1,5 @@
 ---
-status: planned
+status: completed
 date: 2026-06-14
 ---
 
@@ -20,6 +20,7 @@ This step should make the package-level P0 analysis capabilities reachable from 
 - [Evidence Graph](../domain/evidence-graph.md)
 - [Workflow IR](../domain/workflow-ir.md)
 - [Replay Result Evidence](../specs/2026-06-14-replay-result-evidence.md)
+- [Backend Analysis API Seed](../specs/2026-06-14-backend-analysis-api-seed.md)
 - [Step 09 - Replay Result Evidence](./2026-06-14-step-09-replay-result-evidence.md)
 
 ## Requirements
@@ -32,19 +33,33 @@ This step should make the package-level P0 analysis capabilities reachable from 
 
 ## Tasks
 
-- [ ] Write a Backend Analysis API capability spec.
-- [ ] Add request and response schemas for a local session analysis route.
-- [ ] Implement the route using existing Backend API storage and `@bwc/analysis`.
-- [ ] Add Backend API tests with stored session fixtures.
-- [ ] Update module and testing docs.
-- [ ] Update [Project State](../../project/state.md) when complete.
+- [x] Write a Backend Analysis API capability spec.
+- [x] Add request and response schemas for a local session analysis route.
+- [x] Implement the route using existing Backend API storage and `@bwc/analysis`.
+- [x] Add Backend API tests with stored session fixtures.
+- [x] Update module and testing docs.
+- [x] Update [Project State](../../project/state.md) when complete.
 
 ## Acceptance Criteria
 
-- A stored session can be analyzed through Backend API.
-- The response includes action-request links, Evidence Graph facts, and minimal Workflow IR facts.
-- Route tests cover success and missing-session behavior.
-- Typecheck, lint, tests, build, and smoke verification pass.
+- [x] A stored session can be analyzed through Backend API.
+- [x] The response includes action-request links, Evidence Graph facts, and minimal Workflow IR facts.
+- [x] Route tests cover success and missing-session behavior.
+- [x] Typecheck, lint, tests, build, and smoke verification pass.
+
+## Implementation Summary
+
+Step 10 added:
+
+- `POST /sessions/:sessionId/analyze`.
+- Backend API analysis response schema.
+- Route implementation backed by existing session event storage.
+- Reuse of `@bwc/analysis` for action-request linking, Evidence Graph generation, and minimal Workflow IR generation.
+- Tests for successful stored-session analysis and missing-session `404`.
+
+## Verification
+
+See [Step 10 Verification](../testing/2026-06-14-step-10-verification.md).
 
 ## Non-scope
 

@@ -2,6 +2,7 @@ import { ObservationEventSchema } from "@bwc/observation-ir";
 import { RecordingSessionSchema } from "@bwc/shared";
 import { type Static, Type } from "@sinclair/typebox";
 import Fastify, { type FastifyServerOptions } from "fastify";
+import { registerAnalysisRoutes } from "./routes/analysis.js";
 import { registerSessionRoutes } from "./routes/sessions.js";
 import type { RecordingStore } from "./storage/recording-store.js";
 import { SqliteRecordingStore } from "./storage/sqlite-recording-store.js";
@@ -67,6 +68,7 @@ export function buildServer(options: BuildServerOptions = {}) {
   );
 
   registerSessionRoutes(server, store);
+  registerAnalysisRoutes(server, store);
 
   server.addHook("onClose", async () => {
     await store.close();

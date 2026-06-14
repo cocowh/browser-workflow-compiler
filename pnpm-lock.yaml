@@ -20,6 +20,9 @@ importers:
 
   apps/backend-api:
     dependencies:
+      '@bwc/analysis':
+        specifier: workspace:*
+        version: link:../../packages/analysis
       '@bwc/observation-ir':
         specifier: workspace:*
         version: link:../../packages/observation-ir

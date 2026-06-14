@@ -23,3 +23,4 @@ YYYY-MM-DD-step-00-project-bootstrap.md
 - [Step 08 - API-Level Replay Seed](./2026-06-14-step-08-api-level-replay-seed.md)
 - [Step 09 - Replay Result Evidence](./2026-06-14-step-09-replay-result-evidence.md)
 - [Step 10 - Backend Analysis API Seed](./2026-06-14-step-10-backend-analysis-api-seed.md)
+- [Step 11 - API Client Analysis Method](./2026-06-14-step-11-api-client-analysis-method.md)

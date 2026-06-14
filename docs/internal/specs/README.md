@@ -22,6 +22,7 @@ Example:
 - [Observation IR Ingestion](./2026-06-12-observation-ir-ingestion.md)
 - [Action Request Linking](./2026-06-14-action-request-linking.md)
 - [API-Level Replay Seed](./2026-06-14-api-level-replay-seed.md)
+- [Backend Analysis API Seed](./2026-06-14-backend-analysis-api-seed.md)
 - [Evidence Graph Seed](./2026-06-14-evidence-graph-seed.md)
 - [Minimal Workflow IR Generation](./2026-06-14-minimal-workflow-ir-generation.md)
 - [Network Request Capture](./2026-06-13-network-request-capture.md)

@@ -48,9 +48,11 @@ Current role:
 - Exposes Observation IR event routes:
   - `POST /sessions/:sessionId/events`
   - `GET /sessions/:sessionId/events`
+- Exposes deterministic analysis route:
+  - `POST /sessions/:sessionId/analyze`
 - Persists sessions and events with local SQLite under `.bwc/bwc.sqlite`.
 - Creates `.bwc/artifacts/` as the artifact directory convention.
-- Has Vitest coverage for health, session creation, invalid event rejection, valid event ingestion, ordering, and session mismatch rejection.
+- Has Vitest coverage for health, session creation, invalid event rejection, valid event ingestion, ordering, session mismatch rejection, stored-session analysis, and missing-session analysis.
 
 ### Browser Worker
 
@@ -117,3 +119,4 @@ Current role:
 - Do not put Playwright-specific runtime details into shared IR packages unless they are durable facts.
 - Keep persistence behind Backend API rather than inside Browser Worker.
 - Keep Browser Worker communication through `@bwc/api-client` to avoid duplicate fetch logic.
+- Keep Backend API analysis routes deterministic and free of live replay execution until replay safety rules are explicit.

@@ -164,6 +164,142 @@ describe("recording sessions and observation event ingestion", () => {
   });
 });
 
+describe("session analysis", () => {
+  it("analyzes a stored session into links, evidence graph, and workflow facts", async () => {
+    const dataDir = makeTempDataDir();
+    const server = buildServer({ logger: false, dataDir });
+
+    try {
+      const createResponse = await server.inject({
+        method: "POST",
+        url: "/sessions",
+        payload: { name: "Analysis Session" },
+      });
+      const session = createResponse.json();
+      const events = [
+        makeEvent({
+          id: "evt_click",
+          sessionId: session.id,
+          sequence: 1,
+          timestamp: 1_300,
+          type: "browser.click",
+          actor: "user",
+          payload: { actionId: "act_click", text: "Search" },
+        }),
+        makeEvent({
+          id: "evt_request",
+          sessionId: session.id,
+          sequence: 2,
+          timestamp: 1_420,
+          type: "network.request",
+          actor: "network",
+          payload: {
+            requestId: "req_search",
+            method: "POST",
+            url: "https://example.test/api/search?q=books",
+            resourceType: "fetch",
+          },
+        }),
+        makeEvent({
+          id: "evt_response",
+          sessionId: session.id,
+          sequence: 3,
+          timestamp: 1_480,
+          type: "network.response",
+          actor: "network",
+          payload: {
+            requestId: "req_search",
+            method: "POST",
+            url: "https://example.test/api/search?q=books",
+            status: 200,
+            statusText: "OK",
+            contentType: "application/json",
+          },
+        }),
+      ];
+
+      for (const event of events) {
+        const eventResponse = await server.inject({
+          method: "POST",
+          url: `/sessions/${session.id}/events`,
+          payload: event,
+        });
+        expect(eventResponse.statusCode).toBe(201);
+      }
+
+      const response = await server.inject({
+        method: "POST",
+        url: `/sessions/${session.id}/analyze`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toMatchObject({
+        sessionId: session.id,
+        actionRequestLinks: [
+          {
+            actionEventId: "evt_click",
+            requestEventId: "evt_request",
+            requestId: "req_search",
+            responseEventId: "evt_response",
+          },
+        ],
+        evidenceGraph: {
+          nodes: [
+            expect.objectContaining({ id: "node_action_evt_click", type: "action" }),
+            expect.objectContaining({ id: "node_request_evt_request", type: "request" }),
+            expect.objectContaining({ id: "node_response_evt_response", type: "response" }),
+          ],
+          edges: [
+            expect.objectContaining({
+              id: "edge_triggered_link_evt_click_evt_request",
+              type: "triggered",
+              fromNodeId: "node_action_evt_click",
+              toNodeId: "node_request_evt_request",
+            }),
+          ],
+        },
+        workflow: {
+          id: expect.stringMatching(/^wf_/),
+          sourceSessionId: session.id,
+          steps: [
+            {
+              id: "step_evt_request",
+              type: "http.request",
+              method: "POST",
+              url: "https://example.test/api/search?q=books",
+              evidenceRefs: ["evidence://edge_triggered_link_evt_click_evt_request"],
+            },
+          ],
+        },
+      });
+    } finally {
+      await server.close();
+      rmSync(dataDir, { recursive: true, force: true });
+    }
+  });
+
+  it("returns 404 when analyzing a missing session", async () => {
+    const dataDir = makeTempDataDir();
+    const server = buildServer({ logger: false, dataDir });
+
+    try {
+      const response = await server.inject({
+        method: "POST",
+        url: "/sessions/sess_missing/analyze",
+      });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.json()).toEqual({
+        error: "not_found",
+        message: "Session sess_missing was not found.",
+      });
+    } finally {
+      await server.close();
+      rmSync(dataDir, { recursive: true, force: true });
+    }
+  });
+});
+
 function makeTempDataDir(): string {
   return mkdtempSync(join(tmpdir(), "bwc-test-"));
 }

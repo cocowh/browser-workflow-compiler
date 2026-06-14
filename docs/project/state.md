@@ -6,7 +6,7 @@ Phase 1 - Local Runtime Foundation
 
 ## Current Step
 
-[Step 10 - Backend Analysis API Seed](../internal/plans/2026-06-14-step-10-backend-analysis-api-seed.md)
+[Step 11 - API Client Analysis Method](../internal/plans/2026-06-14-step-11-api-client-analysis-method.md)
 
 ## Last Completed
 
@@ -33,13 +33,15 @@ Phase 1 - Local Runtime Foundation
 - Added `@bwc/replay` local API-level Workflow IR replay with deterministic HTTP client and clock injection.
 - Completed [Step 09 - Replay Result Evidence](../internal/plans/2026-06-14-step-09-replay-result-evidence.md).
 - Added `@bwc/analysis` replay result evidence conversion with `workflow_step`, `replay_result`, and `verified_by` graph facts.
+- Completed [Step 10 - Backend Analysis API Seed](../internal/plans/2026-06-14-step-10-backend-analysis-api-seed.md).
+- Added Backend API stored-session analysis route that returns action-request links, Evidence Graph facts, and minimal Workflow IR facts.
 
 ## Next Action
 
-1. Start [Step 10 - Backend Analysis API Seed](../internal/plans/2026-06-14-step-10-backend-analysis-api-seed.md).
-2. Expose deterministic session analysis through Backend API.
-3. Return action-request links, Evidence Graph facts, and minimal Workflow IR facts for a stored session.
-4. Keep Web Console rendering, durable analysis snapshots, and live replay execution out until the API boundary is stable.
+1. Start [Step 11 - API Client Analysis Method](../internal/plans/2026-06-14-step-11-api-client-analysis-method.md).
+2. Expose `POST /sessions/:sessionId/analyze` through `@bwc/api-client`.
+3. Add API client tests for successful analysis and Backend API error propagation.
+4. Keep Web Console rendering out until the API client method is stable.
 
 ## Project Summary
 
@@ -69,10 +71,12 @@ The product records what a user actually does in a browser, captures the network
 - [Step 08 - API-Level Replay Seed](../internal/plans/2026-06-14-step-08-api-level-replay-seed.md)
 - [Step 09 - Replay Result Evidence](../internal/plans/2026-06-14-step-09-replay-result-evidence.md)
 - [Step 10 - Backend Analysis API Seed](../internal/plans/2026-06-14-step-10-backend-analysis-api-seed.md)
+- [Step 11 - API Client Analysis Method](../internal/plans/2026-06-14-step-11-api-client-analysis-method.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [Action Request Linking](../internal/specs/2026-06-14-action-request-linking.md)
 - [API-Level Replay Seed](../internal/specs/2026-06-14-api-level-replay-seed.md)
+- [Backend Analysis API Seed](../internal/specs/2026-06-14-backend-analysis-api-seed.md)
 - [Evidence Graph Seed](../internal/specs/2026-06-14-evidence-graph-seed.md)
 - [Minimal Workflow IR Generation](../internal/specs/2026-06-14-minimal-workflow-ir-generation.md)
 - [Network Request Capture](../internal/specs/2026-06-13-network-request-capture.md)
@@ -91,6 +95,7 @@ The product records what a user actually does in a browser, captures the network
 - [Step 07 Verification](../internal/testing/2026-06-14-step-07-verification.md)
 - [Step 08 Verification](../internal/testing/2026-06-14-step-08-verification.md)
 - [Step 09 Verification](../internal/testing/2026-06-14-step-09-verification.md)
+- [Step 10 Verification](../internal/testing/2026-06-14-step-10-verification.md)
 - [ADR 0001 - Product Positioning and P0 Scope](../internal/adr/0001-product-positioning-and-p0.md)
 
 ## Active Decisions
@@ -109,6 +114,7 @@ The product records what a user actually does in a browser, captures the network
 - Minimal Workflow IR generation should stay deterministic and outside Browser Worker.
 - API-level replay should stay separate from deterministic analysis and should support injected HTTP clients for tests.
 - Replay result evidence conversion should stay deterministic and should not execute HTTP requests.
+- Backend API analysis should reuse `@bwc/analysis` and should not execute live replay requests until replay safety rules are explicit.
 - Web Console uses React and Vite for the first local workbench.
 - Shared schemas use TypeBox / JSON Schema compatible definitions.
 - P0 local persistence should use SQLite for indexes and filesystem artifacts for large payloads.
@@ -144,6 +150,12 @@ Please read docs/project/state.md and docs/project/index.md first, then restore 
 
 ### 2026-06-14
 
+- Completed Step 10 Backend Analysis API Seed.
+- Added `POST /sessions/:sessionId/analyze` to Backend API.
+- Added Backend API analysis response schema.
+- Added stored-session analysis backed by existing session event storage and `@bwc/analysis`.
+- Added Backend API tests for successful session analysis and missing-session analysis.
+- Added Backend Analysis API Seed spec, Step 10 verification notes, and Step 11 API Client Analysis Method plan.
 - Completed Step 09 Replay Result Evidence.
 - Added `addReplayResultEvidence` to `@bwc/analysis`.
 - Added Evidence Graph `workflow_step` and `replay_result` node support.

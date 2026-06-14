@@ -48,3 +48,23 @@ export const EventListResponseSchema = Type.Object(
 );
 
 export type EventListResponse = Static<typeof EventListResponseSchema>;
+
+export const EvidenceGraphResponseSchema = Type.Object(
+  {
+    nodes: Type.Array(Type.Unknown()),
+    edges: Type.Array(Type.Unknown()),
+  },
+  { additionalProperties: false },
+);
+
+export const AnalysisResponseSchema = Type.Object(
+  {
+    sessionId: Type.String({ minLength: 1 }),
+    actionRequestLinks: Type.Array(Type.Unknown()),
+    evidenceGraph: EvidenceGraphResponseSchema,
+    workflow: Type.Unknown(),
+  },
+  { additionalProperties: false },
+);
+
+export type AnalysisResponse = Static<typeof AnalysisResponseSchema>;

@@ -1,6 +1,6 @@
 ---
-status: active
-date: 2026-06-13
+status: completed
+date: 2026-06-14
 ---
 
 # Step 04 - User Action Capture
@@ -16,6 +16,7 @@ This step should add factual click/input/wait observations without starting Evid
 - [Project State](../../project/state.md)
 - [P0 Scope](../product/p0-scope.md)
 - [Observation IR](../domain/observation-ir.md)
+- [User Action Capture](../specs/2026-06-14-user-action-capture.md)
 - [Network Request Capture](../specs/2026-06-13-network-request-capture.md)
 - [Step 03 - Network Request Capture](./2026-06-12-step-03-network-request-capture.md)
 
@@ -29,20 +30,35 @@ This step should add factual click/input/wait observations without starting Evid
 
 ## Tasks
 
-- [ ] Add browser-side event instrumentation for click and input.
-- [ ] Create `browser.click` Observation IR events.
-- [ ] Create `browser.input` Observation IR events.
-- [ ] Add a local smoke page that triggers one action and one fetch.
-- [ ] Verify events are stored in sequence order with nearby network events.
-- [ ] Update module and testing docs.
-- [ ] Update [Project State](../../project/state.md) when complete.
+- [x] Add browser-side event instrumentation for click and input.
+- [x] Create `browser.click` Observation IR events.
+- [x] Create `browser.input` Observation IR events.
+- [x] Add a local smoke page that triggers one action and one fetch.
+- [x] Verify events are stored in sequence order with nearby network events.
+- [x] Update module and testing docs.
+- [x] Update [Project State](../../project/state.md) when complete.
 
 ## Acceptance Criteria
 
-- [ ] Browser Worker records at least one click or input event.
-- [ ] Backend API stores browser action and network events in one session.
-- [ ] Events preserve monotonic sequence values.
-- [ ] Typecheck, lint, tests, build, and smoke verification pass.
+- [x] Browser Worker records at least one click or input event.
+- [x] Backend API stores browser action and network events in one session.
+- [x] Events preserve monotonic sequence values.
+- [x] Typecheck, lint, tests, build, and smoke verification pass.
+
+## Implementation Summary
+
+Step 04 added:
+
+- Browser-side click/input instrumentation installed through Browser Worker.
+- `browser.click` and `browser.input` Observation IR event construction.
+- Target hints based on `data-testid`, `id`, `name`, `aria-label`, and tag fallback.
+- Basic sensitive-field handling for password and hidden inputs.
+- A default smoke page that fills an input, clicks a button, and triggers a fetch.
+- Browser Worker tests for action event construction and sensitive input normalization.
+
+## Verification
+
+See [Step 04 Verification](../testing/2026-06-14-step-04-verification.md).
 
 ## Non-scope
 

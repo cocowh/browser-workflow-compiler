@@ -2,6 +2,7 @@ import { createBwcApiClient } from "@bwc/api-client";
 import type { ObservationEvent } from "@bwc/observation-ir";
 import { createId, nowIso, type RecordingSession } from "@bwc/shared";
 import { chromium, type Page } from "playwright";
+import { attachActionCapture, ensureActionCaptureInstalled } from "./action-capture.js";
 import { makeEvent } from "./event-factory.js";
 import { EventSequencer } from "./event-sequencer.js";
 import { attachNetworkCapture } from "./network-capture.js";
@@ -15,6 +16,7 @@ export type BrowserRecorderResult = {
   finalUrl: string;
   browserName: string;
   buttonText: string | undefined;
+  inputValue: string | undefined;
   session: RecordingSession;
   events: ObservationEvent[];
   storedEventCount: number | undefined;
@@ -26,11 +28,18 @@ export async function recordBrowserLifecycle(options: BrowserRecorderOptions): P
   const session = await createSession(options);
   const sequencer = new EventSequencer();
   const events: ObservationEvent[] = [];
+  let stopNetworkCapture: (() => Promise<void>) | undefined;
 
   try {
     const page = await browser.newPage();
     await setupSmokeNetworkRoute(page);
-    const stopNetworkCapture = attachNetworkCapture({
+    await attachActionCapture({
+      sessionId: session.id,
+      page,
+      events,
+      sequencer,
+    });
+    stopNetworkCapture = attachNetworkCapture({
       sessionId: session.id,
       page,
       events,
@@ -50,8 +59,12 @@ export async function recordBrowserLifecycle(options: BrowserRecorderOptions): P
     );
 
     await page.goto(options.targetUrl);
+    await ensureActionCaptureInstalled(page);
+    await performSmokeActions(page);
     await waitForSmokeNetwork(page);
-    await stopNetworkCapture();
+    await waitForActionCaptureFlush(page);
+    await stopNetworkCapture?.();
+    stopNetworkCapture = undefined;
     const finalUrl = page.url();
 
     events.push(
@@ -69,6 +82,7 @@ export async function recordBrowserLifecycle(options: BrowserRecorderOptions): P
     );
 
     const buttonText = await readOptionalButtonText(page);
+    const inputValue = await readOptionalInputValue(page);
 
     events.push(
       makeEvent({
@@ -92,11 +106,13 @@ export async function recordBrowserLifecycle(options: BrowserRecorderOptions): P
       finalUrl,
       browserName,
       buttonText,
+      inputValue,
       session,
       events,
       storedEventCount,
     };
   } finally {
+    await stopNetworkCapture?.();
     await browser.close();
   }
 }
@@ -153,6 +169,30 @@ async function readOptionalButtonText(page: Page): Promise<string | undefined> {
     return undefined;
   }
   return button.innerText();
+}
+
+async function readOptionalInputValue(page: Page): Promise<string | undefined> {
+  const input = page.locator("input").first();
+  if ((await input.count()) === 0) {
+    return undefined;
+  }
+  return input.inputValue();
+}
+
+async function performSmokeActions(page: Page): Promise<void> {
+  const input = page.locator("#workflow-name").first();
+  if ((await input.count()) > 0) {
+    await input.fill("smoke workflow");
+  }
+
+  const button = page.locator("#record").first();
+  if ((await button.count()) > 0) {
+    await button.click();
+  }
+}
+
+async function waitForActionCaptureFlush(page: Page): Promise<void> {
+  await page.waitForTimeout(100);
 }
 
 async function waitForSmokeNetwork(page: Page): Promise<void> {

@@ -6,7 +6,7 @@ Phase 1 - Local Runtime Foundation
 
 ## Current Step
 
-[Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md)
+[Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md)
 
 ## Last Completed
 
@@ -21,14 +21,16 @@ Phase 1 - Local Runtime Foundation
 - Added Browser Worker lifecycle recorder for `browser.session_started`, `browser.navigate`, and `browser.session_stopped`.
 - Completed [Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md).
 - Added Browser Worker fetch/XHR network capture for `network.request` and `network.response`.
+- Completed [Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md).
+- Added Browser Worker browser-side action capture for `browser.click` and `browser.input`.
 
 ## Next Action
 
-1. Start [Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md).
-2. Capture basic click and input events.
-3. Preserve target hints, page URL, visible text/value metadata, and monotonic sequence values.
-4. Verify browser action and network events can be stored in one session.
-5. Keep action-request linking out until action capture is stable.
+1. Start [Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md).
+2. Link browser action events to nearby network request events.
+3. Preserve request/response pairing through shared request IDs.
+4. Add confidence scores and reasons.
+5. Keep Workflow IR generation out until action-request links are stable.
 
 ## Project Summary
 
@@ -52,14 +54,17 @@ The product records what a user actually does in a browser, captures the network
 - [Step 02 - Browser Event Capture](../internal/plans/2026-06-12-step-02-browser-event-capture.md)
 - [Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md)
 - [Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md)
+- [Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [Network Request Capture](../internal/specs/2026-06-13-network-request-capture.md)
+- [User Action Capture](../internal/specs/2026-06-14-user-action-capture.md)
 - [Local Runtime Modules](../internal/modules/local-runtime.md)
 - [Step 00 Verification](../internal/testing/2026-06-12-step-00-verification.md)
 - [Step 01 Verification](../internal/testing/2026-06-12-step-01-verification.md)
 - [Step 02 Verification](../internal/testing/2026-06-12-step-02-verification.md)
 - [Step 03 Verification](../internal/testing/2026-06-13-step-03-verification.md)
+- [Step 04 Verification](../internal/testing/2026-06-14-step-04-verification.md)
 - [ADR 0001 - Product Positioning and P0 Scope](../internal/adr/0001-product-positioning-and-p0.md)
 
 ## Active Decisions
@@ -72,6 +77,7 @@ The product records what a user actually does in a browser, captures the network
 - Browser Worker should use TypeScript Playwright as the primary runtime.
 - Browser Worker lifecycle recording should capture factual browser events before network capture and analysis.
 - Browser Worker network capture should record fetch/XHR facts before action-request linking.
+- Browser Worker action capture should record click/input facts before action-request linking.
 - Web Console uses React and Vite for the first local workbench.
 - Shared schemas use TypeBox / JSON Schema compatible definitions.
 - P0 local persistence should use SQLite for indexes and filesystem artifacts for large payloads.
@@ -104,6 +110,14 @@ Please read docs/project/state.md and docs/project/index.md first, then restore 
 ```
 
 ## Progress Log
+
+### 2026-06-14
+
+- Completed Step 04 user action capture.
+- Added Browser Worker browser-side instrumentation for click and input actions.
+- Added `browser.click` and `browser.input` Observation IR events with action IDs, target hints, page URLs, safe text/value metadata, and sensitive-field handling.
+- Updated the default smoke page so Browser Worker fills an input, clicks a button, and captures the resulting network request/response in one session.
+- Added User Action Capture spec, Step 04 verification notes, and Step 05 action-request linking plan.
 
 ### 2026-06-13
 

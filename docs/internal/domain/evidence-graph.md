@@ -163,6 +163,17 @@ P0 can begin with simple heuristics:
 - GraphQL operation name
 - exact or fuzzy field value matching between response and later request
 
+## Current P0 Seed
+
+The first implemented seed graph is intentionally smaller than the full model:
+
+- `action` nodes from `browser.click` and `browser.input` events.
+- `request` nodes from `network.request` events.
+- `response` nodes from `network.response` events.
+- `triggered` edges from Step 05 action-request links.
+
+The seed preserves source Observation IR event IDs and action-request link metadata so later Workflow IR generation can cite the graph without treating it as a new source of truth.
+
 ## Human Review
 
 The user should eventually be able to:

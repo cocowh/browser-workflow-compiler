@@ -18,14 +18,18 @@ packages/
 Path: `packages/analysis`
 
 - Exposes `linkActionRequests`.
+- Exposes `buildEvidenceGraph`.
 - Accepts Observation IR events.
 - Links `browser.click` and `browser.input` events to nearby `network.request` events.
 - Preserves matching `network.response` event IDs through shared `requestId`.
 - Emits `ActionRequestLink` objects with action ID, request ID, confidence, reason, and time delta.
+- Builds minimal Evidence Graph seed outputs from action, request, response, and action-request link facts.
+- Emits `EvidenceGraph` objects with source Observation IR event IDs and link metadata preserved.
 
 ## Maintenance Notes
 
 - Keep heuristics explicit and covered by fixtures.
 - Keep analysis outputs separate from Observation IR facts.
+- Keep Evidence Graph seed generation deterministic and free of persistence concerns.
 - Prefer deterministic rules before introducing LLM-assisted explanation or repair.
 - Do not add persistence here; storage belongs behind Backend API when a durable Evidence Graph boundary is introduced.

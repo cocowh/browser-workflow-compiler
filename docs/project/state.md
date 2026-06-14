@@ -6,7 +6,7 @@ Phase 1 - Local Runtime Foundation
 
 ## Current Step
 
-[Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md)
+[Step 07 - Minimal Workflow IR Generation](../internal/plans/2026-06-14-step-07-minimal-workflow-ir-generation.md)
 
 ## Last Completed
 
@@ -25,14 +25,15 @@ Phase 1 - Local Runtime Foundation
 - Added Browser Worker browser-side action capture for `browser.click` and `browser.input`.
 - Completed [Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md).
 - Added `@bwc/analysis` with action-request linking for `browser.click` / `browser.input` and `network.request`.
+- Completed [Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md).
+- Added `@bwc/analysis` Evidence Graph seed generation for action, request, response, and triggered edge facts.
 
 ## Next Action
 
-1. Start [Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md).
-2. Convert action events into graph nodes.
-3. Convert network request/response events into graph nodes.
-4. Convert action-request links into graph edges.
-5. Keep Workflow IR generation out until the graph seed is stable.
+1. Start [Step 07 - Minimal Workflow IR Generation](../internal/plans/2026-06-14-step-07-minimal-workflow-ir-generation.md).
+2. Generate a minimal Workflow IR from selected network request observations.
+3. Preserve Evidence Graph references on generated HTTP request steps.
+4. Keep replay execution out until minimal Workflow IR generation is stable.
 
 ## Project Summary
 
@@ -58,9 +59,11 @@ The product records what a user actually does in a browser, captures the network
 - [Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md)
 - [Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md)
 - [Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md)
+- [Step 07 - Minimal Workflow IR Generation](../internal/plans/2026-06-14-step-07-minimal-workflow-ir-generation.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [Action Request Linking](../internal/specs/2026-06-14-action-request-linking.md)
+- [Evidence Graph Seed](../internal/specs/2026-06-14-evidence-graph-seed.md)
 - [Network Request Capture](../internal/specs/2026-06-13-network-request-capture.md)
 - [User Action Capture](../internal/specs/2026-06-14-user-action-capture.md)
 - [Local Runtime Modules](../internal/modules/local-runtime.md)
@@ -71,6 +74,7 @@ The product records what a user actually does in a browser, captures the network
 - [Step 03 Verification](../internal/testing/2026-06-13-step-03-verification.md)
 - [Step 04 Verification](../internal/testing/2026-06-14-step-04-verification.md)
 - [Step 05 Verification](../internal/testing/2026-06-14-step-05-verification.md)
+- [Step 06 Verification](../internal/testing/2026-06-14-step-06-verification.md)
 - [ADR 0001 - Product Positioning and P0 Scope](../internal/adr/0001-product-positioning-and-p0.md)
 
 ## Active Decisions
@@ -85,6 +89,7 @@ The product records what a user actually does in a browser, captures the network
 - Browser Worker network capture should record fetch/XHR facts before action-request linking.
 - Browser Worker action capture should record click/input facts before action-request linking.
 - Action-request linking should stay deterministic and outside Browser Worker.
+- Evidence Graph seed generation should stay deterministic and outside Browser Worker.
 - Web Console uses React and Vite for the first local workbench.
 - Shared schemas use TypeBox / JSON Schema compatible definitions.
 - P0 local persistence should use SQLite for indexes and filesystem artifacts for large payloads.
@@ -120,6 +125,12 @@ Please read docs/project/state.md and docs/project/index.md first, then restore 
 
 ### 2026-06-14
 
+- Completed Step 06 Evidence Graph Seed.
+- Added `buildEvidenceGraph` to `@bwc/analysis`.
+- Added minimal `EvidenceGraph`, `EvidenceGraphNode`, and `EvidenceGraphEdge` output shapes.
+- Added deterministic action, request, and response graph nodes from Observation IR events.
+- Added `triggered` graph edges that preserve Step 05 action-request link metadata.
+- Added Evidence Graph Seed spec, Step 06 verification notes, and Step 07 Minimal Workflow IR Generation plan.
 - Completed Step 05 action-request linking.
 - Added `@bwc/analysis` package with deterministic `linkActionRequests`.
 - Added `ActionRequestLink` output shape with action ID, request ID, matching response event ID, confidence, reason, and time delta.

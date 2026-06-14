@@ -20,3 +20,4 @@ YYYY-MM-DD-step-00-project-bootstrap.md
 - [Step 05 - Action Request Linking](./2026-06-14-step-05-action-request-linking.md)
 - [Step 06 - Evidence Graph Seed](./2026-06-14-step-06-evidence-graph-seed.md)
 - [Step 07 - Minimal Workflow IR Generation](./2026-06-14-step-07-minimal-workflow-ir-generation.md)
+- [Step 08 - API-Level Replay Seed](./2026-06-14-step-08-api-level-replay-seed.md)

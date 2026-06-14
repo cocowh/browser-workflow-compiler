@@ -1,4 +1,5 @@
 import type { ObservationEvent } from "@bwc/observation-ir";
+import type { HttpRequestStep, Workflow } from "@bwc/workflow-ir";
 
 export type ActionRequestLinkReason = "nearest_request_after_action";
 
@@ -63,6 +64,14 @@ export type BuildEvidenceGraphOptions = {
   actionRequestLinks?: readonly ActionRequestLink[];
 };
 
+export type GenerateMinimalWorkflowOptions = {
+  graph?: EvidenceGraph;
+  id?: string;
+  name?: string;
+  selectedRequestEventIds?: readonly string[];
+  sourceSessionId?: string;
+};
+
 const defaultWindowMs = 1_500;
 const highConfidenceWindowMs = 500;
 const linkableActionTypes = new Set<ObservationEvent["type"]>(["browser.click", "browser.input"]);
@@ -71,6 +80,15 @@ const graphNodeEventTypes = new Set<ObservationEvent["type"]>([
   "browser.input",
   "network.request",
   "network.response",
+]);
+const supportedHttpMethods = new Set<HttpRequestStep["method"]>([
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "HEAD",
+  "OPTIONS",
 ]);
 
 export function linkActionRequests(
@@ -158,6 +176,47 @@ export function makeEvidenceGraphNodeId(event: Pick<ObservationEvent, "id" | "ty
 
 export function makeEvidenceGraphEdgeId(linkId: string): string {
   return `edge_triggered_${sanitizeIdPart(linkId)}`;
+}
+
+export function generateMinimalWorkflow(
+  events: readonly ObservationEvent[],
+  options: GenerateMinimalWorkflowOptions = {},
+): Workflow {
+  const orderedEvents = [...events].sort(compareEvents);
+  const graph = options.graph ?? buildEvidenceGraph(orderedEvents);
+  const selectedRequestEventIds =
+    options.selectedRequestEventIds === undefined ? undefined : new Set(options.selectedRequestEventIds);
+  const requestEvents = orderedEvents.filter((event) => {
+    if (event.type !== "network.request") {
+      return false;
+    }
+    return selectedRequestEventIds === undefined || selectedRequestEventIds.has(event.id);
+  });
+  const steps = requestEvents.flatMap((event) => {
+    const step = makeHttpRequestStep(event, graph);
+    return step === undefined ? [] : [step];
+  });
+  const sourceSessionId =
+    options.sourceSessionId ?? requestEvents[0]?.sessionId ?? orderedEvents[0]?.sessionId ?? "unknown";
+
+  return {
+    id: options.id ?? makeWorkflowId(sourceSessionId),
+    name: options.name ?? "Recorded API Workflow",
+    version: 1,
+    sourceSessionId,
+    inputs: {},
+    variables: {},
+    steps,
+    evidenceRefs: collectWorkflowEvidenceRefs(steps),
+  };
+}
+
+export function makeWorkflowId(sourceSessionId: string): string {
+  return `wf_${sanitizeIdPart(sourceSessionId)}`;
+}
+
+export function makeWorkflowStepId(requestEventId: string): string {
+  return `step_${sanitizeIdPart(requestEventId)}`;
 }
 
 function findNearestActionBeforeRequest(
@@ -252,6 +311,28 @@ function makeEvidenceGraphNode(event: ObservationEvent): EvidenceGraphNode | und
   return node;
 }
 
+function makeHttpRequestStep(event: ObservationEvent, graph: EvidenceGraph): HttpRequestStep | undefined {
+  const method = getHttpMethod(event);
+  const url = getStringPayload(event, "url");
+
+  if (method === undefined || url === undefined) {
+    return undefined;
+  }
+
+  const evidenceRefs = graph.edges
+    .filter((edge) => edge.type === "triggered" && edge.toNodeId === makeEvidenceGraphNodeId(event))
+    .sort(compareEdges)
+    .map((edge) => makeEvidenceRef(edge.id));
+
+  return {
+    id: makeWorkflowStepId(event.id),
+    type: "http.request",
+    method,
+    url,
+    evidenceRefs,
+  };
+}
+
 function makeTriggeredEdge(link: ActionRequestLink): EvidenceGraphEdge {
   const sourceEventIds = [link.actionEventId, link.requestEventId];
   if (link.responseEventId !== undefined) {
@@ -279,6 +360,10 @@ function makeTriggeredEdge(link: ActionRequestLink): EvidenceGraphEdge {
     reason: link.reason,
     metadata,
   };
+}
+
+function compareEdges(left: EvidenceGraphEdge, right: EvidenceGraphEdge): number {
+  return left.id.localeCompare(right.id);
 }
 
 function makeEvidenceGraphNodeLabel(event: ObservationEvent): string {
@@ -367,6 +452,14 @@ function sanitizeIdPart(value: string): string {
   return value.replace(/[^a-zA-Z0-9_]/g, "_");
 }
 
+function getHttpMethod(event: ObservationEvent): HttpRequestStep["method"] | undefined {
+  const method = getStringPayload(event, "method")?.toUpperCase();
+  if (method !== undefined && supportedHttpMethods.has(method as HttpRequestStep["method"])) {
+    return method as HttpRequestStep["method"];
+  }
+  return undefined;
+}
+
 function getNumberPayload(event: ObservationEvent, key: string): number | undefined {
   const value = event.payload[key];
   return typeof value === "number" ? value : undefined;
@@ -393,4 +486,12 @@ function safePath(url: string): string {
 
 function makeRequestSessionKey(sessionId: string, requestId: string): string {
   return `${sessionId}:${requestId}`;
+}
+
+function makeEvidenceRef(edgeId: string): string {
+  return `evidence://${edgeId}`;
+}
+
+function collectWorkflowEvidenceRefs(steps: readonly HttpRequestStep[]): string[] {
+  return [...new Set(steps.flatMap((step) => step.evidenceRefs))].sort();
 }

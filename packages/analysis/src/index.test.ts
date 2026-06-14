@@ -1,6 +1,6 @@
 import type { ObservationEvent } from "@bwc/observation-ir";
 import { describe, expect, it } from "vitest";
-import { buildEvidenceGraph, linkActionRequests } from "./index.js";
+import { buildEvidenceGraph, generateMinimalWorkflow, linkActionRequests } from "./index.js";
 
 describe("linkActionRequests", () => {
   it("links the nearest click action to a following network request and matching response", () => {
@@ -292,6 +292,125 @@ describe("buildEvidenceGraph", () => {
         }),
       }),
     ]);
+  });
+});
+
+describe("generateMinimalWorkflow", () => {
+  it("generates a minimal Workflow IR from Step 04 style events and a Step 06 graph", () => {
+    const events = [
+      makeEvent({
+        id: "evt_click",
+        sequence: 1,
+        timestamp: 1_300,
+        type: "browser.click",
+        payload: { actionId: "act_click", text: "Search" },
+      }),
+      makeEvent({
+        id: "evt_request",
+        sequence: 2,
+        timestamp: 1_420,
+        type: "network.request",
+        payload: {
+          requestId: "req_smoke",
+          method: "POST",
+          url: "https://example.test/api/search?q=books",
+          resourceType: "fetch",
+        },
+      }),
+      makeEvent({
+        id: "evt_response",
+        sequence: 3,
+        timestamp: 1_480,
+        type: "network.response",
+        payload: {
+          requestId: "req_smoke",
+          method: "POST",
+          url: "https://example.test/api/search?q=books",
+          status: 200,
+        },
+      }),
+    ];
+    const graph = buildEvidenceGraph(events);
+
+    const workflow = generateMinimalWorkflow(events, {
+      graph,
+      id: "wf_search",
+      name: "Search Workflow",
+    });
+
+    expect(workflow).toEqual({
+      id: "wf_search",
+      name: "Search Workflow",
+      version: 1,
+      sourceSessionId: "sess_test",
+      inputs: {},
+      variables: {},
+      evidenceRefs: ["evidence://edge_triggered_link_evt_click_evt_request"],
+      steps: [
+        {
+          id: "step_evt_request",
+          type: "http.request",
+          method: "POST",
+          url: "https://example.test/api/search?q=books",
+          evidenceRefs: ["evidence://edge_triggered_link_evt_click_evt_request"],
+        },
+      ],
+    });
+  });
+
+  it("can generate a workflow from selected request events only", () => {
+    const workflow = generateMinimalWorkflow(
+      [
+        makeEvent({
+          id: "evt_first",
+          sequence: 1,
+          timestamp: 1_000,
+          type: "network.request",
+          payload: { requestId: "req_first", method: "GET", url: "https://example.test/api/first" },
+        }),
+        makeEvent({
+          id: "evt_second",
+          sequence: 2,
+          timestamp: 1_100,
+          type: "network.request",
+          payload: { requestId: "req_second", method: "DELETE", url: "https://example.test/api/second" },
+        }),
+      ],
+      {
+        selectedRequestEventIds: ["evt_second"],
+      },
+    );
+
+    expect(workflow.steps).toEqual([
+      {
+        id: "step_evt_second",
+        type: "http.request",
+        method: "DELETE",
+        url: "https://example.test/api/second",
+        evidenceRefs: [],
+      },
+    ]);
+  });
+
+  it("ignores request events that cannot form valid HTTP request steps", () => {
+    const workflow = generateMinimalWorkflow([
+      makeEvent({
+        id: "evt_missing_url",
+        sequence: 1,
+        timestamp: 1_000,
+        type: "network.request",
+        payload: { requestId: "req_missing_url", method: "GET" },
+      }),
+      makeEvent({
+        id: "evt_invalid_method",
+        sequence: 2,
+        timestamp: 1_100,
+        type: "network.request",
+        payload: { requestId: "req_invalid_method", method: "CONNECT", url: "https://example.test/tunnel" },
+      }),
+    ]);
+
+    expect(workflow.steps).toEqual([]);
   });
 });
 

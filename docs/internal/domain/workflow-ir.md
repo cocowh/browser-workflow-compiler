@@ -117,6 +117,15 @@ This can be reserved for P1 unless needed in P0.
 - Workflow IR must support request templating using extracted variables.
 - Workflow IR should not depend on browser automation for P0 replay.
 
+## Current P0 Seed
+
+The first implemented Workflow IR generator is intentionally minimal:
+
+- It creates one `http.request` step per selected `network.request` observation.
+- It preserves the observed HTTP method and URL.
+- It preserves Evidence Graph triggered edge IDs as `evidence://...` refs.
+- It leaves inputs, variables, extraction, assertions, replay, and export behavior for later steps.
+
 ## Non-goals For P0
 
 - Full programming language semantics.

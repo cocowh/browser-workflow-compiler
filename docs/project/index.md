@@ -7,7 +7,7 @@ Turn real browser operations into explainable, editable, replayable, and exporta
 ## Current Project State
 
 - Current phase: [Project State](./state.md)
-- Current implementation step: [Step 07 - Minimal Workflow IR Generation](../internal/plans/2026-06-14-step-07-minimal-workflow-ir-generation.md)
+- Current implementation step: [Step 08 - API-Level Replay Seed](../internal/plans/2026-06-14-step-08-api-level-replay-seed.md)
 - Current product scope: [P0 Scope](../internal/product/p0-scope.md)
 
 ## Foundation Documents
@@ -29,10 +29,12 @@ Turn real browser operations into explainable, editable, replayable, and exporta
 - [Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md)
 - [Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md)
 - [Step 07 - Minimal Workflow IR Generation](../internal/plans/2026-06-14-step-07-minimal-workflow-ir-generation.md)
+- [Step 08 - API-Level Replay Seed](../internal/plans/2026-06-14-step-08-api-level-replay-seed.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [Action Request Linking](../internal/specs/2026-06-14-action-request-linking.md)
 - [Evidence Graph Seed](../internal/specs/2026-06-14-evidence-graph-seed.md)
+- [Minimal Workflow IR Generation](../internal/specs/2026-06-14-minimal-workflow-ir-generation.md)
 - [Network Request Capture](../internal/specs/2026-06-13-network-request-capture.md)
 - [User Action Capture](../internal/specs/2026-06-14-user-action-capture.md)
 - [ADR 0001 - Product Positioning and P0 Scope](../internal/adr/0001-product-positioning-and-p0.md)

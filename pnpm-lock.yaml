@@ -116,6 +116,9 @@ importers:
       '@bwc/observation-ir':
         specifier: workspace:*
         version: link:../observation-ir
+      '@bwc/workflow-ir':
+        specifier: workspace:*
+        version: link:../workflow-ir
     devDependencies:
       vitest:
         specifier: ^4.1.8

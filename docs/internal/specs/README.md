@@ -20,5 +20,6 @@ Example:
 
 - [Local Runtime Baseline](./2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](./2026-06-12-observation-ir-ingestion.md)
+- [Action Request Linking](./2026-06-14-action-request-linking.md)
 - [Network Request Capture](./2026-06-13-network-request-capture.md)
 - [User Action Capture](./2026-06-14-user-action-capture.md)

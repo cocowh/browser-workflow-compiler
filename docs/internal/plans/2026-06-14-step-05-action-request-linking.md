@@ -1,5 +1,5 @@
 ---
-status: active
+status: completed
 date: 2026-06-14
 ---
 
@@ -17,6 +17,7 @@ This step should create the first analysis output needed by Evidence Graph and W
 - [P0 Scope](../product/p0-scope.md)
 - [Observation IR](../domain/observation-ir.md)
 - [Evidence Graph](../domain/evidence-graph.md)
+- [Action Request Linking](../specs/2026-06-14-action-request-linking.md)
 - [User Action Capture](../specs/2026-06-14-user-action-capture.md)
 - [Network Request Capture](../specs/2026-06-13-network-request-capture.md)
 - [Step 04 - User Action Capture](./2026-06-13-step-04-user-action-capture.md)
@@ -31,18 +32,33 @@ This step should create the first analysis output needed by Evidence Graph and W
 
 ## Tasks
 
-- [ ] Add a minimal analysis module for action-request linking.
-- [ ] Define the first link output shape.
-- [ ] Add tests for time-window based linking.
-- [ ] Add a local smoke or fixture using Step 04 events.
-- [ ] Update module and testing docs.
-- [ ] Update [Project State](../../project/state.md) when complete.
+- [x] Add a minimal analysis module for action-request linking.
+- [x] Define the first link output shape.
+- [x] Add tests for time-window based linking.
+- [x] Add a local smoke or fixture using Step 04 events.
+- [x] Update module and testing docs.
+- [x] Update [Project State](../../project/state.md) when complete.
 
 ## Acceptance Criteria
 
-- [ ] At least one click or input event links to a nearby network request.
-- [ ] The link includes action ID, request ID, confidence, and reason.
-- [ ] Typecheck, lint, tests, build, and smoke verification pass.
+- [x] At least one click or input event links to a nearby network request.
+- [x] The link includes action ID, request ID, confidence, and reason.
+- [x] Typecheck, lint, tests, build, and smoke verification pass.
+
+## Implementation Summary
+
+Step 05 added:
+
+- `@bwc/analysis` package.
+- `linkActionRequests` pure function.
+- `ActionRequestLink` output shape.
+- Time-window based action-request linking heuristic.
+- Matching response lookup through shared `requestId`.
+- Tests for click linking, input linking, timeout behavior, and missing IDs.
+
+## Verification
+
+See [Step 05 Verification](../testing/2026-06-14-step-05-verification.md).
 
 ## Non-scope
 

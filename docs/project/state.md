@@ -6,7 +6,7 @@ Phase 1 - Local Runtime Foundation
 
 ## Current Step
 
-[Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md)
+[Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md)
 
 ## Last Completed
 
@@ -23,14 +23,16 @@ Phase 1 - Local Runtime Foundation
 - Added Browser Worker fetch/XHR network capture for `network.request` and `network.response`.
 - Completed [Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md).
 - Added Browser Worker browser-side action capture for `browser.click` and `browser.input`.
+- Completed [Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md).
+- Added `@bwc/analysis` with action-request linking for `browser.click` / `browser.input` and `network.request`.
 
 ## Next Action
 
-1. Start [Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md).
-2. Link browser action events to nearby network request events.
-3. Preserve request/response pairing through shared request IDs.
-4. Add confidence scores and reasons.
-5. Keep Workflow IR generation out until action-request links are stable.
+1. Start [Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md).
+2. Convert action events into graph nodes.
+3. Convert network request/response events into graph nodes.
+4. Convert action-request links into graph edges.
+5. Keep Workflow IR generation out until the graph seed is stable.
 
 ## Project Summary
 
@@ -55,16 +57,20 @@ The product records what a user actually does in a browser, captures the network
 - [Step 03 - Network Request Capture](../internal/plans/2026-06-12-step-03-network-request-capture.md)
 - [Step 04 - User Action Capture](../internal/plans/2026-06-13-step-04-user-action-capture.md)
 - [Step 05 - Action Request Linking](../internal/plans/2026-06-14-step-05-action-request-linking.md)
+- [Step 06 - Evidence Graph Seed](../internal/plans/2026-06-14-step-06-evidence-graph-seed.md)
 - [Local Runtime Baseline](../internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](../internal/specs/2026-06-12-observation-ir-ingestion.md)
+- [Action Request Linking](../internal/specs/2026-06-14-action-request-linking.md)
 - [Network Request Capture](../internal/specs/2026-06-13-network-request-capture.md)
 - [User Action Capture](../internal/specs/2026-06-14-user-action-capture.md)
 - [Local Runtime Modules](../internal/modules/local-runtime.md)
+- [Analysis Module](../internal/modules/analysis.md)
 - [Step 00 Verification](../internal/testing/2026-06-12-step-00-verification.md)
 - [Step 01 Verification](../internal/testing/2026-06-12-step-01-verification.md)
 - [Step 02 Verification](../internal/testing/2026-06-12-step-02-verification.md)
 - [Step 03 Verification](../internal/testing/2026-06-13-step-03-verification.md)
 - [Step 04 Verification](../internal/testing/2026-06-14-step-04-verification.md)
+- [Step 05 Verification](../internal/testing/2026-06-14-step-05-verification.md)
 - [ADR 0001 - Product Positioning and P0 Scope](../internal/adr/0001-product-positioning-and-p0.md)
 
 ## Active Decisions
@@ -78,6 +84,7 @@ The product records what a user actually does in a browser, captures the network
 - Browser Worker lifecycle recording should capture factual browser events before network capture and analysis.
 - Browser Worker network capture should record fetch/XHR facts before action-request linking.
 - Browser Worker action capture should record click/input facts before action-request linking.
+- Action-request linking should stay deterministic and outside Browser Worker.
 - Web Console uses React and Vite for the first local workbench.
 - Shared schemas use TypeBox / JSON Schema compatible definitions.
 - P0 local persistence should use SQLite for indexes and filesystem artifacts for large payloads.
@@ -113,6 +120,11 @@ Please read docs/project/state.md and docs/project/index.md first, then restore 
 
 ### 2026-06-14
 
+- Completed Step 05 action-request linking.
+- Added `@bwc/analysis` package with deterministic `linkActionRequests`.
+- Added `ActionRequestLink` output shape with action ID, request ID, matching response event ID, confidence, reason, and time delta.
+- Added tests for click linking, input linking, time-window exclusion, and missing ID handling.
+- Added Action Request Linking spec, Analysis module notes, Step 05 verification notes, and Step 06 Evidence Graph Seed plan.
 - Completed Step 04 user action capture.
 - Added Browser Worker browser-side instrumentation for click and input actions.
 - Added `browser.click` and `browser.input` Observation IR events with action IDs, target hints, page URLs, safe text/value metadata, and sensitive-field handling.

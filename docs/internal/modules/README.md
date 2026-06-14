@@ -10,4 +10,5 @@ Create module docs as implementation begins, for example:
 
 ## Current Module Docs
 
+- [Analysis Module](./analysis.md)
 - [Local Runtime Modules](./local-runtime.md)

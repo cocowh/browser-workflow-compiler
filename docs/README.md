@@ -27,6 +27,7 @@ This directory is the canonical project documentation source for Browser Workflo
 - [Step 07 - Minimal Workflow IR Generation](./internal/plans/2026-06-14-step-07-minimal-workflow-ir-generation.md)
 - [Step 08 - API-Level Replay Seed](./internal/plans/2026-06-14-step-08-api-level-replay-seed.md)
 - [Step 09 - Replay Result Evidence](./internal/plans/2026-06-14-step-09-replay-result-evidence.md)
+- [Step 10 - Backend Analysis API Seed](./internal/plans/2026-06-14-step-10-backend-analysis-api-seed.md)
 - [Local Runtime Baseline](./internal/specs/2026-06-12-local-runtime-baseline.md)
 - [Observation IR Ingestion](./internal/specs/2026-06-12-observation-ir-ingestion.md)
 - [Action Request Linking](./internal/specs/2026-06-14-action-request-linking.md)
@@ -34,6 +35,7 @@ This directory is the canonical project documentation source for Browser Workflo
 - [Evidence Graph Seed](./internal/specs/2026-06-14-evidence-graph-seed.md)
 - [Minimal Workflow IR Generation](./internal/specs/2026-06-14-minimal-workflow-ir-generation.md)
 - [Network Request Capture](./internal/specs/2026-06-13-network-request-capture.md)
+- [Replay Result Evidence](./internal/specs/2026-06-14-replay-result-evidence.md)
 - [User Action Capture](./internal/specs/2026-06-14-user-action-capture.md)
 - [ADR 0001 - Product Positioning and P0 Scope](./internal/adr/0001-product-positioning-and-p0.md)
 

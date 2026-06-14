@@ -25,4 +25,5 @@ Example:
 - [Evidence Graph Seed](./2026-06-14-evidence-graph-seed.md)
 - [Minimal Workflow IR Generation](./2026-06-14-minimal-workflow-ir-generation.md)
 - [Network Request Capture](./2026-06-13-network-request-capture.md)
+- [Replay Result Evidence](./2026-06-14-replay-result-evidence.md)
 - [User Action Capture](./2026-06-14-user-action-capture.md)

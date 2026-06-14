@@ -13,3 +13,4 @@ Testing docs capture test strategy, local smoke tests, fixture usage, and verifi
 - [Step 06 Verification](./2026-06-14-step-06-verification.md)
 - [Step 07 Verification](./2026-06-14-step-07-verification.md)
 - [Step 08 Verification](./2026-06-14-step-08-verification.md)
+- [Step 09 Verification](./2026-06-14-step-09-verification.md)

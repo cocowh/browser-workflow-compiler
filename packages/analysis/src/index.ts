@@ -1,7 +1,12 @@
 import type { ObservationEvent } from "@bwc/observation-ir";
+import type { ReplayResult, ReplayStepResult } from "@bwc/replay";
 import type { HttpRequestStep, Workflow } from "@bwc/workflow-ir";
 
 export type ActionRequestLinkReason = "nearest_request_after_action";
+
+export type ReplayEvidenceReason = "replay_result_for_workflow_step";
+
+export type EvidenceGraphEdgeReason = ActionRequestLinkReason | ReplayEvidenceReason;
 
 export type ActionRequestLink = {
   id: string;
@@ -20,20 +25,21 @@ export type LinkActionRequestsOptions = {
   windowMs?: number;
 };
 
-export type EvidenceGraphNodeType = "action" | "request" | "response";
+export type EvidenceGraphNodeType = "action" | "request" | "response" | "workflow_step" | "replay_result";
 
-export type EvidenceGraphEdgeType = "triggered";
+export type EvidenceGraphEdgeType = "triggered" | "verified_by";
 
 export type EvidenceGraphNode = {
   id: string;
   type: EvidenceGraphNodeType;
   sessionId: string;
-  sourceEventId: string;
-  sourceEventType: ObservationEvent["type"];
   label: string;
   timestamp: number;
   sequence: number;
   pageUrl?: string;
+  sourceEventId?: string;
+  sourceEventType?: ObservationEvent["type"];
+  evidenceRefs?: string[];
   metadata: Record<string, unknown>;
 };
 
@@ -43,16 +49,14 @@ export type EvidenceGraphEdge = {
   sessionId: string;
   fromNodeId: string;
   toNodeId: string;
-  sourceLinkId: string;
-  sourceEventIds: string[];
+  sourceLinkId?: string;
+  sourceEventIds?: string[];
+  sourceReplayId?: string;
+  sourceReplayStepResultId?: string;
+  evidenceRefs?: string[];
   confidence: number;
-  reason: ActionRequestLinkReason;
-  metadata: {
-    actionId: string;
-    requestId: string;
-    responseEventId?: string;
-    timeDeltaMs: number;
-  };
+  reason: EvidenceGraphEdgeReason;
+  metadata: Record<string, unknown>;
 };
 
 export type EvidenceGraph = {
@@ -70,6 +74,11 @@ export type GenerateMinimalWorkflowOptions = {
   name?: string;
   selectedRequestEventIds?: readonly string[];
   sourceSessionId?: string;
+};
+
+export type AddReplayResultEvidenceOptions = {
+  replayResult: ReplayResult;
+  workflow: Workflow;
 };
 
 const defaultWindowMs = 1_500;
@@ -178,6 +187,23 @@ export function makeEvidenceGraphEdgeId(linkId: string): string {
   return `edge_triggered_${sanitizeIdPart(linkId)}`;
 }
 
+export function makeWorkflowStepNodeId(workflowId: string, stepId: string): string {
+  return `node_workflow_step_${sanitizeIdPart(workflowId)}_${sanitizeIdPart(stepId)}`;
+}
+
+export function makeReplayResultNodeId(replayId: string, replayStepResultId: string): string {
+  return `node_replay_result_${sanitizeIdPart(replayId)}_${sanitizeIdPart(replayStepResultId)}`;
+}
+
+export function makeVerifiedByEdgeId(
+  workflowId: string,
+  stepId: string,
+  replayId: string,
+  replayStepResultId: string,
+): string {
+  return `edge_verified_by_${sanitizeIdPart(workflowId)}_${sanitizeIdPart(stepId)}_${sanitizeIdPart(replayId)}_${sanitizeIdPart(replayStepResultId)}`;
+}
+
 export function generateMinimalWorkflow(
   events: readonly ObservationEvent[],
   options: GenerateMinimalWorkflowOptions = {},
@@ -217,6 +243,61 @@ export function makeWorkflowId(sourceSessionId: string): string {
 
 export function makeWorkflowStepId(requestEventId: string): string {
   return `step_${sanitizeIdPart(requestEventId)}`;
+}
+
+export function addReplayResultEvidence(graph: EvidenceGraph, options: AddReplayResultEvidenceOptions): EvidenceGraph {
+  const { replayResult, workflow } = options;
+  if (replayResult.workflowId !== workflow.id) {
+    throw new Error(`Replay result workflow ID ${replayResult.workflowId} does not match workflow ID ${workflow.id}`);
+  }
+
+  const existingNodeIds = new Set(graph.nodes.map((node) => node.id));
+  const existingEdgeIds = new Set(graph.edges.map((edge) => edge.id));
+  const workflowStepsById = new Map(workflow.steps.map((step) => [step.id, step]));
+  const workflowStepOrder = new Map(workflow.steps.map((step, index) => [step.id, index]));
+  const maxSequence = graph.nodes.reduce((max, node) => Math.max(max, node.sequence), -1);
+  const nodesToAdd: EvidenceGraphNode[] = [];
+  const edgesToAdd: EvidenceGraphEdge[] = [];
+
+  const orderedStepResults = [...replayResult.stepResults].sort((left, right) =>
+    compareReplayStepResults(left, right, workflowStepOrder),
+  );
+
+  for (const [index, stepResult] of orderedStepResults.entries()) {
+    const workflowStep = workflowStepsById.get(stepResult.stepId);
+    if (workflowStep === undefined) {
+      continue;
+    }
+
+    const timestamp = parseIsoTimestamp(stepResult.startedAt);
+    const workflowStepNodeId = makeWorkflowStepNodeId(workflow.id, workflowStep.id);
+    const replayResultNodeId = makeReplayResultNodeId(replayResult.id, stepResult.id);
+    const workflowStepSequence = maxSequence + index * 2 + 1;
+    const replayResultSequence = workflowStepSequence + 1;
+
+    if (!existingNodeIds.has(workflowStepNodeId)) {
+      const node = makeWorkflowStepNode(workflow, workflowStep, timestamp, workflowStepSequence);
+      nodesToAdd.push(node);
+      existingNodeIds.add(node.id);
+    }
+
+    if (!existingNodeIds.has(replayResultNodeId)) {
+      const node = makeReplayResultNode(workflow, replayResult, stepResult, timestamp, replayResultSequence);
+      nodesToAdd.push(node);
+      existingNodeIds.add(node.id);
+    }
+
+    const edge = makeVerifiedByEdge(workflow, replayResult, stepResult, workflowStepNodeId, replayResultNodeId);
+    if (!existingEdgeIds.has(edge.id)) {
+      edgesToAdd.push(edge);
+      existingEdgeIds.add(edge.id);
+    }
+  }
+
+  return {
+    nodes: [...graph.nodes, ...nodesToAdd],
+    edges: [...graph.edges, ...edgesToAdd],
+  };
 }
 
 function findNearestActionBeforeRequest(
@@ -339,7 +420,7 @@ function makeTriggeredEdge(link: ActionRequestLink): EvidenceGraphEdge {
     sourceEventIds.push(link.responseEventId);
   }
 
-  const metadata: EvidenceGraphEdge["metadata"] = {
+  const metadata: Record<string, unknown> = {
     actionId: link.actionId,
     requestId: link.requestId,
     timeDeltaMs: link.timeDeltaMs,
@@ -360,6 +441,115 @@ function makeTriggeredEdge(link: ActionRequestLink): EvidenceGraphEdge {
     reason: link.reason,
     metadata,
   };
+}
+
+function makeWorkflowStepNode(
+  workflow: Workflow,
+  step: HttpRequestStep,
+  timestamp: number,
+  sequence: number,
+): EvidenceGraphNode {
+  return {
+    id: makeWorkflowStepNodeId(workflow.id, step.id),
+    type: "workflow_step",
+    sessionId: workflow.sourceSessionId,
+    label: `${step.method} ${safePath(step.url)}`,
+    timestamp,
+    sequence,
+    evidenceRefs: [...step.evidenceRefs].sort(),
+    metadata: {
+      workflowId: workflow.id,
+      workflowStepId: step.id,
+      stepType: step.type,
+      method: step.method,
+      url: step.url,
+      sourceSessionId: workflow.sourceSessionId,
+    },
+  };
+}
+
+function makeReplayResultNode(
+  workflow: Workflow,
+  replayResult: ReplayResult,
+  stepResult: ReplayStepResult,
+  timestamp: number,
+  sequence: number,
+): EvidenceGraphNode {
+  const metadata: Record<string, unknown> = {
+    replayId: replayResult.id,
+    replayStepResultId: stepResult.id,
+    workflowId: workflow.id,
+    workflowStepId: stepResult.stepId,
+    status: stepResult.status,
+    startedAt: stepResult.startedAt,
+    endedAt: stepResult.endedAt,
+    durationMs: stepResult.durationMs,
+    request: stepResult.request,
+  };
+  if (stepResult.response !== undefined) {
+    metadata.response = stepResult.response;
+  }
+  if (stepResult.error !== undefined) {
+    metadata.error = stepResult.error;
+  }
+
+  return {
+    id: makeReplayResultNodeId(replayResult.id, stepResult.id),
+    type: "replay_result",
+    sessionId: workflow.sourceSessionId,
+    label: `Replay ${stepResult.status} ${stepResult.stepId}`,
+    timestamp,
+    sequence,
+    evidenceRefs: [...stepResult.evidenceRefs].sort(),
+    metadata,
+  };
+}
+
+function makeVerifiedByEdge(
+  workflow: Workflow,
+  replayResult: ReplayResult,
+  stepResult: ReplayStepResult,
+  fromNodeId: string,
+  toNodeId: string,
+): EvidenceGraphEdge {
+  const metadata: Record<string, unknown> = {
+    workflowId: workflow.id,
+    workflowStepId: stepResult.stepId,
+    replayId: replayResult.id,
+    replayStepResultId: stepResult.id,
+    status: stepResult.status,
+    durationMs: stepResult.durationMs,
+  };
+  if (stepResult.response !== undefined) {
+    metadata.responseStatus = stepResult.response.status;
+  }
+  if (stepResult.error !== undefined) {
+    metadata.errorName = stepResult.error.name;
+  }
+
+  return {
+    id: makeVerifiedByEdgeId(workflow.id, stepResult.stepId, replayResult.id, stepResult.id),
+    type: "verified_by",
+    sessionId: workflow.sourceSessionId,
+    fromNodeId,
+    toNodeId,
+    sourceReplayId: replayResult.id,
+    sourceReplayStepResultId: stepResult.id,
+    evidenceRefs: [...stepResult.evidenceRefs].sort(),
+    confidence: 1,
+    reason: "replay_result_for_workflow_step",
+    metadata,
+  };
+}
+
+function compareReplayStepResults(
+  left: ReplayStepResult,
+  right: ReplayStepResult,
+  workflowStepOrder: ReadonlyMap<string, number>,
+): number {
+  const leftIndex = workflowStepOrder.get(left.stepId) ?? Number.MAX_SAFE_INTEGER;
+  const rightIndex = workflowStepOrder.get(right.stepId) ?? Number.MAX_SAFE_INTEGER;
+  return leftIndex - rightIndex || left.stepId.localeCompare(right.stepId) || left.id.localeCompare(right.id);
 }
 
 function compareEdges(left: EvidenceGraphEdge, right: EvidenceGraphEdge): number {
@@ -446,6 +636,11 @@ function getGraphNodeType(eventType: ObservationEvent["type"]): EvidenceGraphNod
   }
 
   throw new Error(`Unsupported Evidence Graph node event type: ${eventType}`);
+}
+
+function parseIsoTimestamp(value: string): number {
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
 function sanitizeIdPart(value: string): string {

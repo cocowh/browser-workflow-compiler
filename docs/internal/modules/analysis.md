@@ -28,6 +28,8 @@ Path: `packages/analysis`
 - Emits `EvidenceGraph` objects with source Observation IR event IDs and link metadata preserved.
 - Generates minimal Workflow IR from network request observations and Evidence Graph triggered edges.
 - Emits `Workflow` objects with `http.request` steps, observed methods and URLs, and `evidence://...` refs.
+- Converts replay results into Evidence Graph additions.
+- Emits `workflow_step` nodes, `replay_result` nodes, and `verified_by` edges that preserve replay status, timing, response, error, and evidence ref facts.
 
 ## Maintenance Notes
 
@@ -35,5 +37,6 @@ Path: `packages/analysis`
 - Keep analysis outputs separate from Observation IR facts.
 - Keep Evidence Graph seed generation deterministic and free of persistence concerns.
 - Keep minimal Workflow IR generation deterministic and conservative until replay validates the generated steps.
+- Keep replay result evidence conversion deterministic and free of runtime HTTP execution.
 - Prefer deterministic rules before introducing LLM-assisted explanation or repair.
 - Do not add persistence here; storage belongs behind Backend API when a durable Evidence Graph boundary is introduced.

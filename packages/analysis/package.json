@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@bwc/observation-ir": "workspace:*",
+    "@bwc/replay": "workspace:*",
     "@bwc/workflow-ir": "workspace:*"
   },
   "devDependencies": {

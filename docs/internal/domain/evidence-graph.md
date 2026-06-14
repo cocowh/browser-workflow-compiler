@@ -165,16 +165,17 @@ P0 can begin with simple heuristics:
 
 ## Current P0 Seed
 
-The first implemented seed graph is intentionally smaller than the full model:
+The implemented P0 seed graph is intentionally smaller than the full model:
 
 - `action` nodes from `browser.click` and `browser.input` events.
 - `request` nodes from `network.request` events.
 - `response` nodes from `network.response` events.
 - `triggered` edges from Step 05 action-request links.
+- `workflow_step` nodes from generated Workflow IR steps when replay evidence is attached.
+- `replay_result` nodes from API-level replay step results.
+- `verified_by` edges from Workflow IR step evidence to replay result evidence.
 
 The seed preserves source Observation IR event IDs and action-request link metadata so later Workflow IR generation can cite the graph without treating it as a new source of truth.
-
-Replay result nodes and `verified_by` edges are planned for Step 09. Step 08 produces replay facts but does not mutate the Evidence Graph yet.
 
 ## Human Review
 

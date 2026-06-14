@@ -1,5 +1,5 @@
 ---
-status: planned
+status: completed
 date: 2026-06-14
 ---
 
@@ -18,6 +18,7 @@ This step should close the explainability loop for replay: a user should be able
 - [Workflow IR](../domain/workflow-ir.md)
 - [Evidence Graph](../domain/evidence-graph.md)
 - [API-Level Replay Seed](../specs/2026-06-14-api-level-replay-seed.md)
+- [Replay Result Evidence](../specs/2026-06-14-replay-result-evidence.md)
 - [Step 08 - API-Level Replay Seed](./2026-06-14-step-08-api-level-replay-seed.md)
 
 ## Requirements
@@ -30,18 +31,32 @@ This step should close the explainability loop for replay: a user should be able
 
 ## Tasks
 
-- [ ] Write or update the replay result evidence capability spec.
-- [ ] Extend the Evidence Graph model used by analysis to represent replay result nodes and `verified_by` edges.
-- [ ] Add tests for passed and failed replay results.
-- [ ] Update module and testing docs.
-- [ ] Update [Project State](../../project/state.md) when complete.
+- [x] Write or update the replay result evidence capability spec.
+- [x] Extend the Evidence Graph model used by analysis to represent replay result nodes and `verified_by` edges.
+- [x] Add tests for passed and failed replay results.
+- [x] Update module and testing docs.
+- [x] Update [Project State](../../project/state.md) when complete.
 
 ## Acceptance Criteria
 
-- A replay result can produce deterministic Evidence Graph additions.
-- Each replay result node preserves workflow step ID, status or error, timing, and evidence refs.
-- Each `verified_by` edge links the generated workflow step evidence to the replay result evidence.
-- Typecheck, lint, tests, build, and smoke verification pass.
+- [x] A replay result can produce deterministic Evidence Graph additions.
+- [x] Each replay result node preserves workflow step ID, status or error, timing, and evidence refs.
+- [x] Each `verified_by` edge links the generated workflow step evidence to the replay result evidence.
+- [x] Typecheck, lint, tests, build, and smoke verification pass.
+
+## Implementation Summary
+
+Step 09 added:
+
+- `addReplayResultEvidence` in `@bwc/analysis`.
+- Evidence Graph `workflow_step` and `replay_result` node support.
+- Evidence Graph `verified_by` edge support.
+- Deterministic node and edge ID helpers for replay result evidence.
+- Tests for passed replay result evidence and failed replay error evidence.
+
+## Verification
+
+See [Step 09 Verification](../testing/2026-06-14-step-09-verification.md).
 
 ## Non-scope
 

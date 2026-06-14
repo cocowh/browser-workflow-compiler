@@ -1,6 +1,7 @@
 import type { ObservationEvent } from "@bwc/observation-ir";
+import type { ReplayResult } from "@bwc/replay";
 import { describe, expect, it } from "vitest";
-import { buildEvidenceGraph, generateMinimalWorkflow, linkActionRequests } from "./index.js";
+import { addReplayResultEvidence, buildEvidenceGraph, generateMinimalWorkflow, linkActionRequests } from "./index.js";
 
 describe("linkActionRequests", () => {
   it("links the nearest click action to a following network request and matching response", () => {
@@ -413,6 +414,227 @@ describe("generateMinimalWorkflow", () => {
     expect(workflow.steps).toEqual([]);
   });
 });
+
+describe("addReplayResultEvidence", () => {
+  it("adds workflow step, replay result, and verified_by evidence for a passed replay result", () => {
+    const events = makeWorkflowEvents();
+    const graph = buildEvidenceGraph(events);
+    const workflow = generateMinimalWorkflow(events, {
+      graph,
+      id: "wf_search",
+      name: "Search Workflow",
+    });
+    const replayResult = makeReplayResult({
+      status: "passed",
+      response: {
+        status: 200,
+        statusText: "OK",
+        contentType: "application/json",
+      },
+    });
+
+    const graphWithReplay = addReplayResultEvidence(graph, {
+      workflow,
+      replayResult,
+    });
+
+    expect(graphWithReplay.nodes).toEqual([
+      ...graph.nodes,
+      {
+        id: "node_workflow_step_wf_search_step_evt_request",
+        type: "workflow_step",
+        sessionId: "sess_test",
+        label: "POST /api/search?q=books",
+        timestamp: 1_000,
+        sequence: 4,
+        evidenceRefs: ["evidence://edge_triggered_link_evt_click_evt_request"],
+        metadata: {
+          workflowId: "wf_search",
+          workflowStepId: "step_evt_request",
+          stepType: "http.request",
+          method: "POST",
+          url: "https://example.test/api/search?q=books",
+          sourceSessionId: "sess_test",
+        },
+      },
+      {
+        id: "node_replay_result_replay_search_replay_step_replay_search_step_evt_request",
+        type: "replay_result",
+        sessionId: "sess_test",
+        label: "Replay passed step_evt_request",
+        timestamp: 1_000,
+        sequence: 5,
+        evidenceRefs: ["evidence://edge_triggered_link_evt_click_evt_request"],
+        metadata: {
+          replayId: "replay_search",
+          replayStepResultId: "replay_step_replay_search_step_evt_request",
+          workflowId: "wf_search",
+          workflowStepId: "step_evt_request",
+          status: "passed",
+          startedAt: "1970-01-01T00:00:01.000Z",
+          endedAt: "1970-01-01T00:00:01.042Z",
+          durationMs: 42,
+          request: {
+            method: "POST",
+            url: "https://example.test/api/search?q=books",
+          },
+          response: {
+            status: 200,
+            statusText: "OK",
+            contentType: "application/json",
+          },
+        },
+      },
+    ]);
+
+    expect(graphWithReplay.edges).toEqual([
+      ...graph.edges,
+      {
+        id: "edge_verified_by_wf_search_step_evt_request_replay_search_replay_step_replay_search_step_evt_request",
+        type: "verified_by",
+        sessionId: "sess_test",
+        fromNodeId: "node_workflow_step_wf_search_step_evt_request",
+        toNodeId: "node_replay_result_replay_search_replay_step_replay_search_step_evt_request",
+        sourceReplayId: "replay_search",
+        sourceReplayStepResultId: "replay_step_replay_search_step_evt_request",
+        evidenceRefs: ["evidence://edge_triggered_link_evt_click_evt_request"],
+        confidence: 1,
+        reason: "replay_result_for_workflow_step",
+        metadata: {
+          workflowId: "wf_search",
+          workflowStepId: "step_evt_request",
+          replayId: "replay_search",
+          replayStepResultId: "replay_step_replay_search_step_evt_request",
+          status: "passed",
+          durationMs: 42,
+          responseStatus: 200,
+        },
+      },
+    ]);
+  });
+
+  it("preserves failed replay error facts on replay result evidence", () => {
+    const events = makeWorkflowEvents();
+    const graph = buildEvidenceGraph(events);
+    const workflow = generateMinimalWorkflow(events, {
+      graph,
+      id: "wf_search",
+      name: "Search Workflow",
+    });
+    const replayResult = makeReplayResult({
+      status: "failed",
+      error: {
+        name: "TypeError",
+        message: "network down",
+      },
+    });
+
+    const graphWithReplay = addReplayResultEvidence(graph, {
+      workflow,
+      replayResult,
+    });
+
+    expect(graphWithReplay.nodes.at(-1)).toEqual(
+      expect.objectContaining({
+        type: "replay_result",
+        label: "Replay failed step_evt_request",
+        metadata: expect.objectContaining({
+          status: "failed",
+          error: {
+            name: "TypeError",
+            message: "network down",
+          },
+        }),
+      }),
+    );
+    expect(graphWithReplay.edges.at(-1)).toEqual(
+      expect.objectContaining({
+        type: "verified_by",
+        reason: "replay_result_for_workflow_step",
+        metadata: expect.objectContaining({
+          status: "failed",
+          errorName: "TypeError",
+        }),
+      }),
+    );
+  });
+});
+
+function makeWorkflowEvents(): ObservationEvent[] {
+  return [
+    makeEvent({
+      id: "evt_click",
+      sequence: 1,
+      timestamp: 1_300,
+      type: "browser.click",
+      payload: { actionId: "act_click", text: "Search" },
+    }),
+    makeEvent({
+      id: "evt_request",
+      sequence: 2,
+      timestamp: 1_420,
+      type: "network.request",
+      payload: {
+        requestId: "req_smoke",
+        method: "POST",
+        url: "https://example.test/api/search?q=books",
+        resourceType: "fetch",
+      },
+    }),
+    makeEvent({
+      id: "evt_response",
+      sequence: 3,
+      timestamp: 1_480,
+      type: "network.response",
+      payload: {
+        requestId: "req_smoke",
+        method: "POST",
+        url: "https://example.test/api/search?q=books",
+        status: 200,
+      },
+    }),
+  ];
+}
+
+function makeReplayResult(input: {
+  status: "passed" | "failed";
+  response?: ReplayResult["stepResults"][number]["response"];
+  error?: ReplayResult["stepResults"][number]["error"];
+}): ReplayResult {
+  const stepResult: ReplayResult["stepResults"][number] = {
+    id: "replay_step_replay_search_step_evt_request",
+    replayId: "replay_search",
+    workflowId: "wf_search",
+    stepId: "step_evt_request",
+    stepType: "http.request",
+    status: input.status,
+    startedAt: "1970-01-01T00:00:01.000Z",
+    endedAt: "1970-01-01T00:00:01.042Z",
+    durationMs: 42,
+    request: {
+      method: "POST",
+      url: "https://example.test/api/search?q=books",
+    },
+    evidenceRefs: ["evidence://edge_triggered_link_evt_click_evt_request"],
+  };
+  if (input.response !== undefined) {
+    stepResult.response = input.response;
+  }
+  if (input.error !== undefined) {
+    stepResult.error = input.error;
+  }
+
+  return {
+    id: "replay_search",
+    workflowId: "wf_search",
+    status: input.status,
+    startedAt: "1970-01-01T00:00:01.000Z",
+    endedAt: "1970-01-01T00:00:01.050Z",
+    durationMs: 50,
+    evidenceRefs: ["evidence://edge_triggered_link_evt_click_evt_request"],
+    stepResults: [stepResult],
+  };
+}
 
 function makeEvent(input: {
   id: string;
